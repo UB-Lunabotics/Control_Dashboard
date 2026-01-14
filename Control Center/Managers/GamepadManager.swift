@@ -8,7 +8,12 @@ struct GamepadState {
     var rightStickY: Double = 0
     var leftTrigger: Double = 0
     var rightTrigger: Double = 0
+    var buttonAPressed: Bool = false
     var buttonBPressed: Bool = false
+    var buttonXPressed: Bool = false
+    var buttonYPressed: Bool = false
+    var buttonPlusPressed: Bool = false
+    var buttonMinusPressed: Bool = false
 }
 
 final class GamepadManager: ObservableObject {
@@ -77,7 +82,12 @@ final class GamepadManager: ObservableObject {
         state.rightStickY = Double(gamepad.rightThumbstick.yAxis.value) * invert
         state.leftTrigger = Double(gamepad.leftTrigger.value)
         state.rightTrigger = Double(gamepad.rightTrigger.value)
+        state.buttonAPressed = gamepad.buttonA.isPressed
         state.buttonBPressed = gamepad.buttonB.isPressed
+        state.buttonXPressed = gamepad.buttonX.isPressed
+        state.buttonYPressed = gamepad.buttonY.isPressed
+        state.buttonPlusPressed = gamepad.buttonMenu.isPressed
+        state.buttonMinusPressed = gamepad.buttonOptions?.isPressed ?? false
 
         if state.buttonBPressed {
             onEStop?()

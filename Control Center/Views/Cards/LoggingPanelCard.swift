@@ -1,10 +1,10 @@
 import SwiftUI
 
-struct DebugLoggingCard: View {
+struct LoggingPanelCard: View {
     @ObservedObject var state: AppState
 
     var body: some View {
-        CardView(title: "Debug + Logging") {
+        CardView(title: "Logging Panel") {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 6) {
                     Button("Add Marker") {
@@ -14,7 +14,7 @@ struct DebugLoggingCard: View {
                     Button("Save Snapshot") {
                         state.saveSnapshot()
                     }
-                    Button("Select Save Location") {
+                    Button("Save Location") {
                         state.selectSaveLocation()
                     }
                 }
@@ -29,12 +29,11 @@ struct DebugLoggingCard: View {
                         }
                     }
                 )) {
-                    Text(state.logger.isRecording ? "Stop Recording" : "Start Recording")
-                        .font(.dashboardBody(12))
+                    Text("Start Recording")
+                        .font(.dashboardBody(10))
                         .foregroundStyle(DashboardTheme.textPrimary)
                 }
                 .toggleStyle(.switch)
-                .keyboardShortcut("r", modifiers: [])
 
                 Text("Status: \(state.loggerStatus)")
                     .font(.dashboardBody(10))

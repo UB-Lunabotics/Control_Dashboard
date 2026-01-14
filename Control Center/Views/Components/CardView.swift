@@ -10,19 +10,20 @@ struct CardView<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(title)
-                .font(.dashboardTitle(16))
+                .font(.dashboardTitle(14))
                 .foregroundStyle(DashboardTheme.textPrimary)
+            Divider().background(DashboardTheme.cardBorder.opacity(0.4))
             content
         }
-        .padding(16)
+        .padding(8)
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(DashboardTheme.cardBackground)
+            RoundedRectangle(cornerRadius: 10)
+                .fill(DashboardTheme.cardBackground.opacity(0.25))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(DashboardTheme.cardBorder, lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(DashboardTheme.cardBorder.opacity(0.35), lineWidth: 1)
                 )
         )
     }

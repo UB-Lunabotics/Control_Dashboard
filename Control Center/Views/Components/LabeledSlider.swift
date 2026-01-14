@@ -7,18 +7,19 @@ struct LabeledSlider: View {
     let step: Double
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(title)
-                    .font(.dashboardBody(12))
+                    .font(.dashboardBody(10))
                     .foregroundStyle(DashboardTheme.textSecondary)
                 Spacer()
                 Text(String(format: "%.2f", value))
-                    .font(.dashboardMono(11))
+                    .font(.dashboardMono(10))
                     .foregroundStyle(DashboardTheme.textPrimary)
             }
             Slider(value: $value, in: range, step: step)
                 .accentColor(DashboardTheme.accent)
+                .controlSize(.mini)
         }
     }
 }

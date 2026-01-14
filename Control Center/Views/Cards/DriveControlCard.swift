@@ -12,9 +12,9 @@ struct DriveControlCard: View {
 
     var body: some View {
         CardView(title: "Rover Drive Control") {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
                 Group {
-                    HStack(spacing: 10) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                         HoldButton(title: "Forward", tint: DashboardTheme.success) {
                             state.startDriveHold(v: forwardSpeed, w: 0)
                         } onRelease: {
@@ -27,8 +27,6 @@ struct DriveControlCard: View {
                             state.stopDriveHold()
                             state.sendDrive(v: 0, w: 0)
                         }
-                    }
-                    HStack(spacing: 10) {
                         HoldButton(title: "Left", tint: DashboardTheme.accent) {
                             state.startDriveHold(v: 0, w: leftSpeed)
                         } onRelease: {
@@ -43,31 +41,32 @@ struct DriveControlCard: View {
                         }
                     }
 
-                    LabeledSlider(title: "Forward Speed", value: $forwardSpeed, range: 0...1, step: 0.01)
-                    LabeledSlider(title: "Reverse Speed", value: $reverseSpeed, range: 0...1, step: 0.01)
-                    LabeledSlider(title: "Left Speed", value: $leftSpeed, range: 0...1, step: 0.01)
-                    LabeledSlider(title: "Right Speed", value: $rightSpeed, range: 0...1, step: 0.01)
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 6) {
+                        LabeledSlider(title: "Forward Speed", value: $forwardSpeed, range: 0...1, step: 0.01)
+                        LabeledSlider(title: "Reverse Speed", value: $reverseSpeed, range: 0...1, step: 0.01)
+                        LabeledSlider(title: "Left Speed", value: $leftSpeed, range: 0...1, step: 0.01)
+                        LabeledSlider(title: "Right Speed", value: $rightSpeed, range: 0...1, step: 0.01)
+                    }
 
                     Divider().background(DashboardTheme.cardBorder)
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Send v / w")
-                            .font(.dashboardBody(12))
-                            .foregroundStyle(DashboardTheme.textSecondary)
+                    Text("Send v / w")
+                        .font(.dashboardBody(10))
+                        .foregroundStyle(DashboardTheme.textSecondary)
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 6) {
                         LabeledSlider(title: "Linear v", value: $vCommand, range: -1...1, step: 0.01)
                         LabeledSlider(title: "Angular w", value: $wCommand, range: -1...1, step: 0.01)
-                        Button("Send Once") {
-                            state.sendDrive(v: vCommand, w: wCommand)
-                        }
-                        .buttonStyle(.bordered)
                     }
+
+                    Button("Send Once") {
+                        state.sendDrive(v: vCommand, w: wCommand)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.mini)
                 }
                 .disabled(state.eStopActive || !state.driveEnabled)
                 .opacity(state.eStopActive || !state.driveEnabled ? 0.6 : 1.0)
-
-                Toggle("Enable Drive", isOn: $state.driveEnabled)
-                    .toggleStyle(.switch)
-                    .disabled(state.eStopActive)
             }
         }
     }

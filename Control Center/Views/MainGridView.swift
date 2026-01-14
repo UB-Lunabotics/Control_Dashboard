@@ -5,38 +5,40 @@ struct MainGridView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let spacing: CGFloat = 16
-            let rows: CGFloat = 3
-            let rowHeight = (proxy.size.height - spacing * (rows - 1)) / rows
+            let spacing: CGFloat = 12
+            let leftWidth = proxy.size.width * 0.28
+            let midWidth = proxy.size.width * 0.40
+            let rightWidth = proxy.size.width - leftWidth - midWidth - spacing * 2
 
-            VStack(spacing: spacing) {
-                HStack(spacing: spacing) {
-                    URDFSimulatorCard()
-                        .frame(maxHeight: .infinity)
-                    CameraPanelCard(state: state)
-                        .frame(maxHeight: .infinity)
-                }
-                .frame(height: rowHeight)
-
-                HStack(spacing: spacing) {
+            HStack(spacing: spacing) {
+                VStack(spacing: spacing) {
                     ControllerVisualizationCard(state: state)
-                        .frame(maxHeight: .infinity)
-                    DriveControlCard(state: state)
+                        .frame(height: proxy.size.height * 0.28)
+                    MotionControlCard(state: state)
                         .frame(maxHeight: .infinity)
                 }
-                .frame(height: rowHeight)
+                .frame(width: leftWidth)
 
-                HStack(spacing: spacing) {
-                    DrumControlCard(state: state)
-                        .frame(maxHeight: .infinity)
-                    VStack(spacing: spacing) {
-                        DriveProfileCard(state: state)
-                            .frame(maxHeight: .infinity)
-                        DebugLoggingCard(state: state)
-                            .frame(maxHeight: .infinity)
+                VStack(spacing: spacing) {
+                    URDFSimulatorCard()
+                        .frame(height: proxy.size.height * 0.36)
+
+                    HStack(spacing: spacing) {
+                        DebugPanelCard(state: state)
+                        LoggingPanelCard(state: state)
                     }
+                    .frame(height: proxy.size.height * 0.14)
+
+                    TerminalPanelCard()
+                        .frame(maxHeight: .infinity)
                 }
-                .frame(height: rowHeight)
+                .frame(width: midWidth)
+
+                VStack(spacing: spacing) {
+                    CameraViewCard(state: state)
+                        .frame(maxHeight: .infinity)
+                }
+                .frame(width: rightWidth)
             }
         }
     }

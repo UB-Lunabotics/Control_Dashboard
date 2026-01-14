@@ -5,11 +5,7 @@ struct URDFSimulatorCard: View {
         CardView(title: "Rover Sim (URDF)") {
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(DashboardTheme.background.opacity(0.6))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(DashboardTheme.cardBorder, lineWidth: 1)
-                    )
+                    .stroke(DashboardTheme.cardBorder.opacity(0.5), lineWidth: 1)
                 VStack(spacing: 6) {
                     Image(systemName: "cube.transparent")
                         .font(.system(size: 26))

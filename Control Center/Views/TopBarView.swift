@@ -4,18 +4,17 @@ struct TopBarView: View {
     @ObservedObject var state: AppState
 
     var body: some View {
-        HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("WebSocket Target")
-                    .font(.dashboardBody(12))
-                    .foregroundStyle(DashboardTheme.textSecondary)
+        HStack(spacing: 12) {
+            topBarSection(title: "IP Settings") {
                 HStack(spacing: 8) {
                     TextField("Host", text: $state.host)
                         .textFieldStyle(.roundedBorder)
+                        .controlSize(.small)
                         .frame(width: 140)
                     TextField("Port", value: $state.port, formatter: NumberFormatter())
                         .textFieldStyle(.roundedBorder)
-                        .frame(width: 64)
+                        .controlSize(.small)
+                        .frame(width: 60)
                     Button(state.connectionState == .connected ? "Disconnect" : "Connect") {
                         if state.connectionState == .connected {
                             state.disconnect()
@@ -24,72 +23,60 @@ struct TopBarView: View {
                         }
                     }
                     .buttonStyle(.borderedProminent)
-                    StatusPill(text: connectionLabel, color: connectionColor)
+                    .controlSize(.small)
                 }
             }
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Link Metrics")
-                    .font(.dashboardBody(12))
-                    .foregroundStyle(DashboardTheme.textSecondary)
-                HStack(spacing: 10) {
+            topBarSection(title: "Indicators and Metrics") {
+                HStack(spacing: 8) {
+                    StatusPill(text: connectionLabel, color: connectionColor)
                     metricLabel("Ping", value: "\(Int(state.metrics.pingMs)) ms")
                     metricLabel("Loss", value: String(format: "%.1f%%", state.metrics.packetLossPercent))
-                    metricLabel("Reconnects", value: "\(state.metrics.reconnectCount)")
                     metricLabel("Last", value: lastTelemetryLabel)
                 }
             }
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Modes")
-                    .font(.dashboardBody(12))
-                    .foregroundStyle(DashboardTheme.textSecondary)
+            topBarSection(title: "System / E-Stop / Auto") {
                 HStack(spacing: 8) {
-                    StatusPill(text: state.systemPowerOn ? "Power ON" : "Power OFF", color: state.systemPowerOn ? DashboardTheme.success : DashboardTheme.warning)
-                    StatusPill(text: state.autonomousOn ? "Auto ON" : "Auto OFF", color: state.autonomousOn ? DashboardTheme.success : DashboardTheme.warning)
-                    StatusPill(text: state.eStopActive ? "E-Stop ACTIVE" : "E-Stop ARMED", color: state.eStopActive ? DashboardTheme.danger : DashboardTheme.warning)
-                    StatusPill(text: state.controllerEnabled ? "Controller ON" : "Controller OFF", color: state.controllerEnabled ? DashboardTheme.success : DashboardTheme.warning)
-                    StatusPill(text: state.driveEnabled ? "Drive ON" : "Drive OFF", color: state.driveEnabled ? DashboardTheme.success : DashboardTheme.warning)
-                    StatusPill(text: state.drumEnabled ? "Drum ON" : "Drum OFF", color: state.drumEnabled ? DashboardTheme.success : DashboardTheme.warning)
-                }
-                HStack(spacing: 12) {
-                    Toggle("System Power", isOn: systemPowerBinding)
+                    Toggle("Power", isOn: systemPowerBinding)
                         .toggleStyle(.switch)
-                        .font(.dashboardBody(11))
-                    Toggle("Autonomous", isOn: autonomousBinding)
+                    Toggle("Auto", isOn: autonomousBinding)
                         .toggleStyle(.switch)
-                        .font(.dashboardBody(11))
-                }
-            }
-
-            Spacer()
-
-            VStack(alignment: .trailing, spacing: 10) {
-                Button(state.eStopActive ? "Reset E-Stop" : "E-STOP") {
-                    if state.eStopActive {
-                        state.resetEStop()
-                    } else {
-                        state.activateEStop()
+                    Button(state.eStopActive ? "Reset" : "E-STOP") {
+                        if state.eStopActive {
+                            state.resetEStop()
+                        } else {
+                            state.activateEStop()
+                        }
                     }
+                    .buttonStyle(.bordered)
+                    .tint(DashboardTheme.danger)
+                    .controlSize(.small)
+                    .keyboardShortcut("e", modifiers: [])
                 }
-                .buttonStyle(.bordered)
-                .tint(DashboardTheme.danger)
-                .font(.dashboardTitle(12))
-                .frame(minWidth: 120, minHeight: 34)
-                .keyboardShortcut("e", modifiers: [])
-
-                Toggle(isOn: $state.isDarkTheme) {
-                    Text(state.isDarkTheme ? "Dark" : "Light")
-                        .font(.dashboardBody(12))
-                        .foregroundStyle(DashboardTheme.textPrimary)
-                }
-                .toggleStyle(.switch)
+                .font(.dashboardBody(10))
+                .foregroundStyle(DashboardTheme.textPrimary)
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 8)
+    }
+
+    private func topBarSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.dashboardBody(10))
+                .foregroundStyle(DashboardTheme.textSecondary)
+            content()
+        }
+        .padding(8)
         .background(
-            Rectangle().fill(DashboardTheme.cardBackground)
+            RoundedRectangle(cornerRadius: 10)
+                .fill(DashboardTheme.cardBackground.opacity(0.2))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(DashboardTheme.cardBorder.opacity(0.3), lineWidth: 1)
+                )
         )
     }
 
@@ -124,10 +111,10 @@ struct TopBarView: View {
     private func metricLabel(_ title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
-                .font(.dashboardBody(10))
+                .font(.dashboardBody(9))
                 .foregroundStyle(DashboardTheme.textSecondary)
             Text(value)
-                .font(.dashboardMono(11))
+                .font(.dashboardMono(10))
                 .foregroundStyle(DashboardTheme.textPrimary)
         }
     }

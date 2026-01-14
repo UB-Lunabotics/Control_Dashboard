@@ -8,9 +8,9 @@ struct DrumControlCard: View {
 
     var body: some View {
         CardView(title: "Drum Control") {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
                 Group {
-                    HStack(spacing: 10) {
+                    HStack(spacing: 8) {
                         HoldButton(title: "Lift Up", tint: DashboardTheme.success) {
                             state.startDrumHold(lift: liftSpeed, spin: 0)
                         } onRelease: {
@@ -25,7 +25,7 @@ struct DrumControlCard: View {
                         }
                     }
 
-                    HStack(spacing: 10) {
+                    HStack(spacing: 8) {
                         HoldButton(title: "Spin CW", tint: DashboardTheme.accent) {
                             state.startDrumHold(lift: 0, spin: spinSpeed)
                         } onRelease: {
@@ -45,10 +45,6 @@ struct DrumControlCard: View {
                 }
                 .disabled(state.eStopActive || !state.drumEnabled)
                 .opacity(state.eStopActive || !state.drumEnabled ? 0.6 : 1.0)
-
-                Toggle("Enable Drum", isOn: $state.drumEnabled)
-                    .toggleStyle(.switch)
-                    .disabled(state.eStopActive)
             }
         }
     }
