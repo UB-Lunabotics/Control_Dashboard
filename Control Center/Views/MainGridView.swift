@@ -14,22 +14,19 @@ struct MainGridView: View {
                 VStack(spacing: spacing) {
                     ControllerVisualizationCard(state: state)
                         .frame(height: proxy.size.height * 0.32)
-                    MotionControlCard(state: state)
+                    TerminalPanelCard()
                         .frame(maxHeight: .infinity)
                 }
                 .frame(width: leftWidth)
 
                 VStack(spacing: spacing) {
                     URDFSimulatorCard()
-                        .frame(height: proxy.size.height * 0.36)
+                        .frame(height: proxy.size.height * 0.34)
 
-                    HStack(spacing: spacing) {
-                        DebugPanelCard(state: state)
-                        LoggingPanelCard(state: state)
-                    }
-                    .frame(height: proxy.size.height * 0.14)
+                    LoggingPanelCard(state: state)
+                        .frame(height: proxy.size.height * 0.14)
 
-                    TerminalPanelCard()
+                    MotionControlCard(state: state)
                         .frame(maxHeight: .infinity)
                 }
                 .frame(width: midWidth)

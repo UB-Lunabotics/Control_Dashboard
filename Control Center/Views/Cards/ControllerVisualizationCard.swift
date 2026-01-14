@@ -25,7 +25,7 @@ struct ControllerVisualizationCard: View {
 
     var body: some View {
         CardView(title: "Controller Visualization") {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text("Current controller binding")
                         .font(.dashboardBody(10))
@@ -42,18 +42,23 @@ struct ControllerVisualizationCard: View {
                     .controlSize(.mini)
                 }
 
-                HStack(alignment: .center, spacing: 16) {
-                    ControllerButtonsView(state: gamepad.state)
-                        .frame(width: 240, height: 150)
-
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(DashboardTheme.cardBorder.opacity(0.5), lineWidth: 1)
-                        Text("Binding: Standard")
-                            .font(.dashboardBody(10))
-                            .foregroundStyle(DashboardTheme.textSecondary)
+                HStack(alignment: .top, spacing: 16) {
+                    HStack(spacing: 12) {
+                        stickCircle(title: "Left", x: gamepad.state.leftStickX, y: gamepad.state.leftStickY)
+                        stickCircle(title: "Right", x: gamepad.state.rightStickX, y: gamepad.state.rightStickY)
                     }
-                    .frame(width: 140, height: 90)
+                    .frame(width: 160)
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                        TriggerIndicator(title: "LT (Drum Up)", value: gamepad.state.leftTrigger)
+                        TriggerIndicator(title: "RT (Drum Down)", value: gamepad.state.rightTrigger)
+                        ButtonIndicator(title: "A (Start Auto)", isActive: gamepad.state.buttonAPressed)
+                        ButtonIndicator(title: "B (E-Stop)", isActive: gamepad.state.buttonBPressed)
+                        ButtonIndicator(title: "X (Left)", isActive: gamepad.state.buttonXPressed)
+                        ButtonIndicator(title: "Y (Forward)", isActive: gamepad.state.buttonYPressed)
+                        ButtonIndicator(title: "+ (Aux +)", isActive: gamepad.state.buttonPlusPressed)
+                        ButtonIndicator(title: "- (Aux -)", isActive: gamepad.state.buttonMinusPressed)
+                    }
                 }
 
                 if showMapping {
@@ -78,7 +83,7 @@ struct ControllerVisualizationCard: View {
                                     }
                                     .labelsHidden()
                                     .controlSize(.mini)
-                                    .frame(width: 50)
+                                    .frame(width: 60)
                                 }
                             }
                         }
@@ -89,38 +94,62 @@ struct ControllerVisualizationCard: View {
     }
 }
 
-struct ControllerButtonsView: View {
-    let state: GamepadState
+private struct ButtonIndicator: View {
+    let title: String
+    let isActive: Bool
 
     var body: some View {
-        ZStack {
-            stickCircle(x: state.leftStickX, y: state.leftStickY)
-                .position(x: 60, y: 70)
-            stickCircle(x: state.rightStickX, y: state.rightStickY)
-                .position(x: 135, y: 70)
-
-            triggerBar(label: "LT", value: state.leftTrigger)
-                .position(x: 160, y: 22)
-            triggerBar(label: "RT", value: state.rightTrigger)
-                .position(x: 195, y: 22)
-
-            buttonCircle("Y", isActive: state.buttonYPressed)
-                .position(x: 185, y: 68)
-            buttonCircle("X", isActive: state.buttonXPressed)
-                .position(x: 165, y: 86)
-            buttonCircle("B", isActive: state.buttonBPressed)
-                .position(x: 205, y: 86)
-            buttonCircle("A", isActive: state.buttonAPressed)
-                .position(x: 185, y: 104)
-
-            buttonCapsule("+", isActive: state.buttonPlusPressed)
-                .position(x: 175, y: 125)
-            buttonCapsule("-", isActive: state.buttonMinusPressed)
-                .position(x: 205, y: 125)
+        let color = isActive ? DashboardTheme.accent : DashboardTheme.cardBorder
+        return HStack(spacing: 6) {
+            Circle()
+                .fill(color.opacity(0.2))
+                .overlay(Circle().stroke(color.opacity(0.8), lineWidth: 1))
+                .frame(width: 12, height: 12)
+            Text(title)
+                .font(.dashboardBody(10))
+                .foregroundStyle(DashboardTheme.textPrimary)
         }
+        .padding(.vertical, 4)
+        .padding(.horizontal, 6)
+        .background(DashboardTheme.cardBackground.opacity(0.2))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
     }
+}
 
-    private func stickCircle(x: Double, y: Double) -> some View {
+private struct TriggerIndicator: View {
+    let title: String
+    let value: Double
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.dashboardBody(10))
+                .foregroundStyle(DashboardTheme.textPrimary)
+            GeometryReader { proxy in
+                let width = max(2, proxy.size.width * CGFloat(value))
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(DashboardTheme.cardBackground.opacity(0.3))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(DashboardTheme.cardBorder.opacity(0.6), lineWidth: 1)
+                        )
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(DashboardTheme.accent.opacity(0.8))
+                        .frame(width: width)
+                }
+            }
+            .frame(height: 12)
+        }
+        .padding(.vertical, 4)
+        .padding(.horizontal, 6)
+        .background(DashboardTheme.cardBackground.opacity(0.2))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+    }
+}
+
+private func stickCircle(title: String, x: Double, y: Double) -> some View {
+    VStack(spacing: 6) {
         ZStack {
             Circle()
                 .stroke(DashboardTheme.cardBorder.opacity(0.6), lineWidth: 1)
@@ -130,50 +159,8 @@ struct ControllerButtonsView: View {
                 .offset(x: CGFloat(x) * 10, y: CGFloat(-y) * 10)
         }
         .frame(width: 70, height: 70)
-    }
-
-    private func triggerBar(label: String, value: Double) -> some View {
-        ZStack(alignment: .bottom) {
-            RoundedRectangle(cornerRadius: 4)
-                .stroke(DashboardTheme.cardBorder.opacity(0.6), lineWidth: 1)
-                .background(RoundedRectangle(cornerRadius: 4).fill(DashboardTheme.background.opacity(0.6)))
-            RoundedRectangle(cornerRadius: 4)
-                .fill(DashboardTheme.accent.opacity(0.8))
-                .frame(height: CGFloat(max(0.05, value)) * 20)
-        }
-        .frame(width: 24, height: 30)
-        .overlay(
-            Text(label)
-                .font(.dashboardBody(8))
-                .foregroundStyle(DashboardTheme.textSecondary)
-                .offset(y: 16)
-        )
-    }
-
-    private func buttonCircle(_ label: String, isActive: Bool) -> some View {
-        let color = isActive ? DashboardTheme.accent : DashboardTheme.cardBorder
-        return ZStack {
-            Circle()
-                .fill(color.opacity(0.2))
-                .overlay(Circle().stroke(color.opacity(0.8), lineWidth: 1))
-            Text(label)
-                .font(.dashboardBody(8))
-                .foregroundStyle(DashboardTheme.textPrimary)
-        }
-        .frame(width: 20, height: 20)
-    }
-
-    private func buttonCapsule(_ label: String, isActive: Bool) -> some View {
-        let color = isActive ? DashboardTheme.accent : DashboardTheme.cardBorder
-        return Text(label)
-            .font(.dashboardBody(8))
-            .foregroundStyle(DashboardTheme.textPrimary)
-            .padding(.horizontal, 7)
-            .padding(.vertical, 3)
-            .background(color.opacity(0.2))
-            .clipShape(Capsule())
-            .overlay(
-                Capsule().stroke(color.opacity(0.8), lineWidth: 1)
-            )
+        Text(title)
+            .font(.dashboardBody(10))
+            .foregroundStyle(DashboardTheme.textSecondary)
     }
 }

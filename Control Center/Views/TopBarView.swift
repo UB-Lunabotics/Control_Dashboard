@@ -32,19 +32,6 @@ struct TopBarView: View {
 
             Spacer(minLength: 8)
 
-            topBarSection(title: "Indicators") {
-                HStack(spacing: 6) {
-                    StatusPill(text: state.systemPowerOn ? "Power ON" : "Power OFF", color: state.systemPowerOn ? DashboardTheme.success : DashboardTheme.warning)
-                    StatusPill(text: state.autonomousOn ? "Auto ON" : "Auto OFF", color: state.autonomousOn ? DashboardTheme.success : DashboardTheme.warning)
-                    StatusPill(text: state.eStopActive ? "E-Stop ACTIVE" : "E-Stop ARMED", color: state.eStopActive ? DashboardTheme.danger : DashboardTheme.warning)
-                    StatusPill(text: state.controllerEnabled ? "Controller ON" : "Controller OFF", color: state.controllerEnabled ? DashboardTheme.success : DashboardTheme.warning)
-                    StatusPill(text: state.driveEnabled ? "Drive ON" : "Drive OFF", color: state.driveEnabled ? DashboardTheme.success : DashboardTheme.warning)
-                    StatusPill(text: state.drumEnabled ? "Drum ON" : "Drum OFF", color: state.drumEnabled ? DashboardTheme.success : DashboardTheme.warning)
-                }
-            }
-
-            Spacer(minLength: 8)
-
             topBarSection(title: "IP Settings") {
                 HStack(spacing: 8) {
                     TextField("Host", text: $state.host)
@@ -67,30 +54,54 @@ struct TopBarView: View {
                 }
             }
 
-            topBarSection(title: "Metrics") {
-                HStack(spacing: 8) {
-                    StatusPill(text: connectionLabel, color: connectionColor)
-                    metricLabel("Ping", value: "\(Int(state.metrics.pingMs)) ms")
-                    metricLabel("Loss", value: String(format: "%.1f%%", state.metrics.packetLossPercent))
-                    metricLabel("Last", value: lastTelemetryLabel)
-                }
-            }
+            Spacer(minLength: 8)
 
-            topBarSection(title: "System / E-Stop / Auto") {
-                HStack(spacing: 8) {
-                    Toggle("Power", isOn: systemPowerBinding)
-                        .toggleStyle(.switch)
-                    Toggle("Auto", isOn: autonomousBinding)
-                        .toggleStyle(.switch)
-                    Toggle(isOn: eStopBinding) {
-                        Text("E-Stop")
+            HStack(spacing: 8) {
+                topBarSection(title: "Indicators") {
+                    HStack(spacing: 6) {
+                        StatusPill(text: state.systemPowerOn ? "Power ON" : "Power OFF", color: state.systemPowerOn ? DashboardTheme.success : DashboardTheme.warning)
+                        StatusPill(text: state.autonomousOn ? "Auto ON" : "Auto OFF", color: state.autonomousOn ? DashboardTheme.success : DashboardTheme.warning)
+                        StatusPill(text: state.eStopActive ? "E-Stop ACTIVE" : "E-Stop ARMED", color: state.eStopActive ? DashboardTheme.danger : DashboardTheme.warning)
+                        StatusPill(text: state.controllerEnabled ? "Controller ON" : "Controller OFF", color: state.controllerEnabled ? DashboardTheme.success : DashboardTheme.warning)
+                        StatusPill(text: state.driveEnabled ? "Drive ON" : "Drive OFF", color: state.driveEnabled ? DashboardTheme.success : DashboardTheme.warning)
+                        StatusPill(text: state.drumEnabled ? "Drum ON" : "Drum OFF", color: state.drumEnabled ? DashboardTheme.success : DashboardTheme.warning)
                     }
-                    .toggleStyle(.switch)
-                    .tint(DashboardTheme.danger)
-                    .controlSize(.small)
                 }
-                .font(.dashboardBody(10))
-                .foregroundStyle(DashboardTheme.textPrimary)
+
+                topBarSection(title: "Metrics") {
+                    HStack(spacing: 8) {
+                        StatusPill(text: connectionLabel, color: connectionColor)
+                        metricLabel("Ping", value: "\(Int(state.metrics.pingMs)) ms")
+                        metricLabel("Loss", value: String(format: "%.1f%%", state.metrics.packetLossPercent))
+                        metricLabel("Last", value: lastTelemetryLabel)
+                    }
+                }
+
+                topBarSection(title: "System / E-Stop / Auto") {
+                    HStack(spacing: 8) {
+                        Toggle("Power", isOn: systemPowerBinding)
+                            .toggleStyle(.switch)
+                        Toggle("Auto", isOn: autonomousBinding)
+                            .toggleStyle(.switch)
+                        Button(state.eStopActive ? "E-STOP ACTIVE" : "E-STOP") {
+                            if state.eStopActive {
+                                state.resetEStop()
+                            } else {
+                                state.activateEStop()
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(DashboardTheme.danger)
+                        .controlSize(.small)
+                        Button("Reset") {
+                            state.sendStopAll()
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
+                    .font(.dashboardBody(10))
+                    .foregroundStyle(DashboardTheme.textPrimary)
+                }
             }
         }
         .padding(.horizontal, 16)
@@ -173,16 +184,4 @@ struct TopBarView: View {
         )
     }
 
-    private var eStopBinding: Binding<Bool> {
-        Binding(
-            get: { state.eStopActive },
-            set: { value in
-                if value {
-                    state.activateEStop()
-                } else {
-                    state.resetEStop()
-                }
-            }
-        )
-    }
 }

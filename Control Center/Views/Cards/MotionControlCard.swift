@@ -13,14 +13,10 @@ struct MotionControlCard: View {
     var body: some View {
         CardView(title: "Motion Control") {
             VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 6) {
-                    StatusPill(text: state.driveEnabled ? "Drive ON" : "Drive OFF", color: state.driveEnabled ? DashboardTheme.success : DashboardTheme.warning)
-                    StatusPill(text: state.drumEnabled ? "Drum ON" : "Drum OFF", color: state.drumEnabled ? DashboardTheme.success : DashboardTheme.warning)
-                    StatusPill(text: state.controllerEnabled ? "Controller ON" : "Controller OFF", color: state.controllerEnabled ? DashboardTheme.success : DashboardTheme.warning)
-                    StatusPill(text: state.eStopActive ? "E-Stop ACTIVE" : "E-Stop ARMED", color: state.eStopActive ? DashboardTheme.danger : DashboardTheme.warning)
-                }
-
-                sectionHeader("Drive train")
+                sectionHeader("Drive train", pills: [
+                    (state.driveEnabled ? "Drive ON" : "Drive OFF", state.driveEnabled ? DashboardTheme.success : DashboardTheme.warning),
+                    (state.controllerEnabled ? "Controller ON" : "Controller OFF", state.controllerEnabled ? DashboardTheme.success : DashboardTheme.warning)
+                ])
                 HStack(spacing: 8) {
                     profileList(title: "Drive Profiles", profiles: state.driveProfiles.map { $0.name }, active: $activeDriveProfile)
                     drivePad
@@ -29,13 +25,19 @@ struct MotionControlCard: View {
                     DriveProfileSettingsView(state: state, profileName: activeDriveProfile)
                 }
 
-                sectionHeader("Drum lever")
+                sectionHeader("Drum lever", pills: [
+                    (state.drumEnabled ? "Lever ON" : "Lever OFF", state.drumEnabled ? DashboardTheme.success : DashboardTheme.warning),
+                    (state.eStopActive ? "E-Stop" : "Safe", state.eStopActive ? DashboardTheme.danger : DashboardTheme.success)
+                ])
                 HStack(spacing: 8) {
                     profileList(title: "Lever Profiles", profiles: leverProfiles, active: $activeLeverProfile)
                     leverButtons
                 }
 
-                sectionHeader("Drum Control")
+                sectionHeader("Drum Control", pills: [
+                    (state.drumEnabled ? "Drum ON" : "Drum OFF", state.drumEnabled ? DashboardTheme.success : DashboardTheme.warning),
+                    (state.eStopActive ? "E-Stop" : "Safe", state.eStopActive ? DashboardTheme.danger : DashboardTheme.success)
+                ])
                 HStack(spacing: 8) {
                     profileList(title: "Drum Profiles", profiles: drumProfiles, active: $activeDrumProfile)
                     drumButtons
@@ -44,10 +46,16 @@ struct MotionControlCard: View {
         }
     }
 
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.dashboardBody(11))
-            .foregroundStyle(DashboardTheme.textSecondary)
+    private func sectionHeader(_ title: String, pills: [(String, Color)]) -> some View {
+        HStack(spacing: 6) {
+            Text(title)
+                .font(.dashboardBody(11))
+                .foregroundStyle(DashboardTheme.textSecondary)
+            Spacer()
+            ForEach(pills, id: \.0) { item in
+                StatusPill(text: item.0, color: item.1)
+            }
+        }
     }
 
     private func profileList(title: String, profiles: [String], active: Binding<String?>) -> some View {
@@ -63,7 +71,8 @@ struct MotionControlCard: View {
                         }
                     }
                     .buttonStyle(.bordered)
-                    .controlSize(.mini)
+                    .controlSize(.small)
+                    .tint(DashboardTheme.accent)
 
                     Button(action: {
                         active.wrappedValue = (active.wrappedValue == name) ? nil : name
@@ -71,7 +80,7 @@ struct MotionControlCard: View {
                         Image(systemName: "gearshape")
                     }
                     .buttonStyle(.bordered)
-                    .controlSize(.mini)
+                    .controlSize(.small)
                 }
             }
         }

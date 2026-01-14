@@ -19,7 +19,7 @@ struct LoggingPanelCard: View {
                     }
                 }
                 .buttonStyle(.bordered)
-                .controlSize(.mini)
+                .controlSize(.small)
 
                 Toggle(isOn: Binding(
                     get: { state.logger.isRecording },
@@ -39,6 +39,7 @@ struct LoggingPanelCard: View {
                     .font(.dashboardBody(10))
                     .foregroundStyle(DashboardTheme.textSecondary)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
