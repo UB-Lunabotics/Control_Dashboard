@@ -6,14 +6,14 @@ struct MainGridView: View {
     var body: some View {
         GeometryReader { proxy in
             let spacing: CGFloat = 12
-            let leftWidth = proxy.size.width * 0.28
-            let midWidth = proxy.size.width * 0.40
+            let leftWidth = proxy.size.width * 0.32
+            let midWidth = proxy.size.width * 0.36
             let rightWidth = proxy.size.width - leftWidth - midWidth - spacing * 2
 
             HStack(spacing: spacing) {
                 VStack(spacing: spacing) {
                     ControllerVisualizationCard(state: state)
-                        .frame(height: proxy.size.height * 0.28)
+                        .frame(height: proxy.size.height * 0.32)
                     MotionControlCard(state: state)
                         .frame(maxHeight: .infinity)
                 }

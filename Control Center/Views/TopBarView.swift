@@ -4,7 +4,34 @@ struct TopBarView: View {
     @ObservedObject var state: AppState
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 16) {
+            HStack(spacing: 12) {
+                Group {
+                    if let logoImage = NSImage(named: "UBLogo") {
+                        Image(nsImage: logoImage)
+                            .resizable()
+                            .scaledToFit()
+                    } else {
+                        Image(systemName: "shield.lefthalf.filled")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(DashboardTheme.accent)
+                    }
+                }
+                .frame(width: 44, height: 44)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("UB Lunabotics")
+                        .font(.dashboardTitle(18))
+                        .foregroundStyle(DashboardTheme.textPrimary)
+                    Text("Rover Control Dashboard")
+                        .font(.dashboardBody(11))
+                        .foregroundStyle(DashboardTheme.textSecondary)
+                }
+            }
+
+            Spacer(minLength: 12)
+
             topBarSection(title: "IP Settings") {
                 HStack(spacing: 8) {
                     TextField("Host", text: $state.host)
@@ -60,6 +87,7 @@ struct TopBarView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+        .frame(maxWidth: .infinity)
     }
 
     private func topBarSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {

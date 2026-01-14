@@ -76,18 +76,20 @@ final class GamepadManager: ObservableObject {
 
     private func readState(_ gamepad: GCExtendedGamepad) {
         let invert: Double = bindings.invertY ? -1.0 : 1.0
-        state.leftStickX = Double(gamepad.leftThumbstick.xAxis.value)
-        state.leftStickY = Double(gamepad.leftThumbstick.yAxis.value) * invert
-        state.rightStickX = Double(gamepad.rightThumbstick.xAxis.value)
-        state.rightStickY = Double(gamepad.rightThumbstick.yAxis.value) * invert
-        state.leftTrigger = Double(gamepad.leftTrigger.value)
-        state.rightTrigger = Double(gamepad.rightTrigger.value)
-        state.buttonAPressed = gamepad.buttonA.isPressed
-        state.buttonBPressed = gamepad.buttonB.isPressed
-        state.buttonXPressed = gamepad.buttonX.isPressed
-        state.buttonYPressed = gamepad.buttonY.isPressed
-        state.buttonPlusPressed = gamepad.buttonMenu.isPressed
-        state.buttonMinusPressed = gamepad.buttonOptions?.isPressed ?? false
+        var updated = state
+        updated.leftStickX = Double(gamepad.leftThumbstick.xAxis.value)
+        updated.leftStickY = Double(gamepad.leftThumbstick.yAxis.value) * invert
+        updated.rightStickX = Double(gamepad.rightThumbstick.xAxis.value)
+        updated.rightStickY = Double(gamepad.rightThumbstick.yAxis.value) * invert
+        updated.leftTrigger = Double(gamepad.leftTrigger.value)
+        updated.rightTrigger = Double(gamepad.rightTrigger.value)
+        updated.buttonAPressed = gamepad.buttonA.isPressed
+        updated.buttonBPressed = gamepad.buttonB.isPressed
+        updated.buttonXPressed = gamepad.buttonX.isPressed
+        updated.buttonYPressed = gamepad.buttonY.isPressed
+        updated.buttonPlusPressed = gamepad.buttonMenu.isPressed
+        updated.buttonMinusPressed = gamepad.buttonOptions?.isPressed ?? false
+        state = updated
 
         if state.buttonBPressed {
             onEStop?()

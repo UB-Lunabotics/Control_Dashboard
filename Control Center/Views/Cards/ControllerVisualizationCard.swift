@@ -44,7 +44,7 @@ struct ControllerVisualizationCard: View {
 
                 HStack(alignment: .center, spacing: 16) {
                     ControllerButtonsView(state: gamepad.state)
-                        .frame(width: 180, height: 120)
+                        .frame(width: 240, height: 150)
 
                     ZStack {
                         RoundedRectangle(cornerRadius: 8)
@@ -53,7 +53,7 @@ struct ControllerVisualizationCard: View {
                             .font(.dashboardBody(10))
                             .foregroundStyle(DashboardTheme.textSecondary)
                     }
-                    .frame(width: 120, height: 80)
+                    .frame(width: 140, height: 90)
                 }
 
                 if showMapping {
@@ -95,28 +95,28 @@ struct ControllerButtonsView: View {
     var body: some View {
         ZStack {
             stickCircle(x: state.leftStickX, y: state.leftStickY)
-                .position(x: 40, y: 55)
+                .position(x: 60, y: 70)
             stickCircle(x: state.rightStickX, y: state.rightStickY)
-                .position(x: 95, y: 55)
+                .position(x: 135, y: 70)
 
             triggerBar(label: "LT", value: state.leftTrigger)
-                .position(x: 120, y: 18)
+                .position(x: 160, y: 22)
             triggerBar(label: "RT", value: state.rightTrigger)
-                .position(x: 150, y: 18)
+                .position(x: 195, y: 22)
 
             buttonCircle("Y", isActive: state.buttonYPressed)
-                .position(x: 135, y: 52)
+                .position(x: 185, y: 68)
             buttonCircle("X", isActive: state.buttonXPressed)
-                .position(x: 118, y: 64)
+                .position(x: 165, y: 86)
             buttonCircle("B", isActive: state.buttonBPressed)
-                .position(x: 150, y: 64)
+                .position(x: 205, y: 86)
             buttonCircle("A", isActive: state.buttonAPressed)
-                .position(x: 135, y: 78)
+                .position(x: 185, y: 104)
 
             buttonCapsule("+", isActive: state.buttonPlusPressed)
-                .position(x: 130, y: 100)
+                .position(x: 175, y: 125)
             buttonCapsule("-", isActive: state.buttonMinusPressed)
-                .position(x: 150, y: 100)
+                .position(x: 205, y: 125)
         }
     }
 
@@ -129,7 +129,7 @@ struct ControllerButtonsView: View {
                 .frame(width: 6, height: 6)
                 .offset(x: CGFloat(x) * 10, y: CGFloat(-y) * 10)
         }
-        .frame(width: 50, height: 50)
+        .frame(width: 70, height: 70)
     }
 
     private func triggerBar(label: String, value: Double) -> some View {
@@ -141,12 +141,12 @@ struct ControllerButtonsView: View {
                 .fill(DashboardTheme.accent.opacity(0.8))
                 .frame(height: CGFloat(max(0.05, value)) * 20)
         }
-        .frame(width: 18, height: 22)
+        .frame(width: 24, height: 30)
         .overlay(
             Text(label)
                 .font(.dashboardBody(8))
                 .foregroundStyle(DashboardTheme.textSecondary)
-                .offset(y: 12)
+                .offset(y: 16)
         )
     }
 
@@ -160,7 +160,7 @@ struct ControllerButtonsView: View {
                 .font(.dashboardBody(8))
                 .foregroundStyle(DashboardTheme.textPrimary)
         }
-        .frame(width: 16, height: 16)
+        .frame(width: 20, height: 20)
     }
 
     private func buttonCapsule(_ label: String, isActive: Bool) -> some View {
@@ -168,8 +168,8 @@ struct ControllerButtonsView: View {
         return Text(label)
             .font(.dashboardBody(8))
             .foregroundStyle(DashboardTheme.textPrimary)
-            .padding(.horizontal, 5)
-            .padding(.vertical, 2)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 3)
             .background(color.opacity(0.2))
             .clipShape(Capsule())
             .overlay(
