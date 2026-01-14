@@ -38,6 +38,22 @@ final class AppState: ObservableObject {
 
     @Published var cameraConfigs: [CameraConfig]
     @Published var cameraFullscreen: Bool = false
+    @Published var controllerMapping: [String: String] = [
+        "Drive Forward": "LS-Y",
+        "Drive Reverse": "LS-Y",
+        "Drive Right": "RS-X",
+        "Drive Left": "RS-X",
+        "Drum Up": "LT",
+        "Drum Down": "RT",
+        "Spin Dig": "RB",
+        "Spin Dump": "LB",
+        "Autonomous On": "A",
+        "Autonomous Off": "B",
+        "E-Stop On": "Y",
+        "E-Stop Off": "X",
+        "Camera 1 Control": "D-Up",
+        "Camera 2 Control": "D-Down"
+    ]
 
     @Published var loggerStatus: String = "Idle"
 
@@ -56,6 +72,7 @@ final class AppState: ObservableObject {
     private var drumHoldTimer: Timer?
     private var heldDriveCommand: (v: Double, w: Double) = (0, 0)
     private var heldDrumCommand: (lift: Double, spin: Double) = (0, 0)
+    private var lastInputStates: [String: Bool] = [:]
 
     init() {
         let initialHost = settings.loadHost()
@@ -104,15 +121,9 @@ final class AppState: ObservableObject {
             }
         }
 
-        gamepad.onDriveCommand = { [weak self] v, w in
-            self?.sendDriveFromController(v: v, w: w)
-        }
-        gamepad.onDrumCommand = { [weak self] lift, spin in
-            self?.sendDrumFromController(lift: lift, spin: spin)
-        }
-        gamepad.onEStop = { [weak self] in
+        gamepad.onStateUpdate = { [weak self] state in
             DispatchQueue.main.async {
-                self?.activateEStop()
+                self?.handleGamepadState(state)
             }
         }
         gamepad.updateBindings(controllerBindings)
@@ -347,6 +358,112 @@ final class AppState: ObservableObject {
     private func sendDrumFromController(lift: Double, spin: Double) {
         guard controllerEnabled, drumEnabled, !eStopActive else { return }
         sendDrum(lift: lift, spin: spin)
+    }
+
+    private func handleGamepadState(_ state: GamepadState) {
+        guard controllerEnabled, !eStopActive else { return }
+        let driveMax = 0.6
+        let turnMax = 0.5
+        let liftMax = 0.6
+        let spinMax = 0.6
+
+        let forward = magnitude(for: controllerMapping["Drive Forward"], state: state, polarity: .positive)
+        let reverse = magnitude(for: controllerMapping["Drive Reverse"], state: state, polarity: .negative)
+        let right = magnitude(for: controllerMapping["Drive Right"], state: state, polarity: .positive)
+        let left = magnitude(for: controllerMapping["Drive Left"], state: state, polarity: .negative)
+
+        let v = (forward - reverse) * driveMax
+        let w = (right - left) * turnMax
+        sendDriveFromController(v: v, w: w)
+
+        let drumUp = magnitude(for: controllerMapping["Drum Up"], state: state, polarity: .positive)
+        let drumDown = magnitude(for: controllerMapping["Drum Down"], state: state, polarity: .positive)
+        let spinDig = magnitude(for: controllerMapping["Spin Dig"], state: state, polarity: .positive)
+        let spinDump = magnitude(for: controllerMapping["Spin Dump"], state: state, polarity: .positive)
+        let lift = (drumUp - drumDown) * liftMax
+        let spin = (spinDig - spinDump) * spinMax
+        sendDrumFromController(lift: lift, spin: spin)
+
+        handleEdgeAction("Autonomous On", state: state) {
+            setMode(systemPower: systemPowerOn, autonomous: true)
+        }
+        handleEdgeAction("Autonomous Off", state: state) {
+            setMode(systemPower: systemPowerOn, autonomous: false)
+        }
+        handleEdgeAction("E-Stop On", state: state) {
+            activateEStop()
+        }
+        handleEdgeAction("E-Stop Off", state: state) {
+            resetEStop()
+        }
+        handleEdgeAction("Camera 1 Control", state: state) {
+            toggleCamera(index: 0)
+        }
+        handleEdgeAction("Camera 2 Control", state: state) {
+            toggleCamera(index: 1)
+        }
+    }
+
+    private enum Polarity {
+        case positive
+        case negative
+    }
+
+    private func magnitude(for token: String?, state: GamepadState, polarity: Polarity) -> Double {
+        guard let token else { return 0 }
+        let value = inputValue(for: token, state: state)
+        if isAxis(token) {
+            switch polarity {
+            case .positive:
+                return max(0, value)
+            case .negative:
+                return max(0, -value)
+            }
+        }
+        return value
+    }
+
+    private func handleEdgeAction(_ action: String, state: GamepadState, actionBlock: () -> Void) {
+        guard let token = controllerMapping[action] else { return }
+        let pressed = inputValue(for: token, state: state) > 0.5
+        let wasPressed = lastInputStates[action] ?? false
+        if pressed && !wasPressed {
+            actionBlock()
+        }
+        lastInputStates[action] = pressed
+    }
+
+    private func inputValue(for token: String, state: GamepadState) -> Double {
+        switch token {
+        case "A": return state.buttonAPressed ? 1 : 0
+        case "B": return state.buttonBPressed ? 1 : 0
+        case "X": return state.buttonXPressed ? 1 : 0
+        case "Y": return state.buttonYPressed ? 1 : 0
+        case "LB": return state.buttonLBPressed ? 1 : 0
+        case "RB": return state.buttonRBPressed ? 1 : 0
+        case "+": return state.buttonPlusPressed ? 1 : 0
+        case "-": return state.buttonMinusPressed ? 1 : 0
+        case "D-Up": return state.dpadUpPressed ? 1 : 0
+        case "D-Down": return state.dpadDownPressed ? 1 : 0
+        case "D-Left": return state.dpadLeftPressed ? 1 : 0
+        case "D-Right": return state.dpadRightPressed ? 1 : 0
+        case "LT": return min(0.5, max(0, state.leftTrigger * 0.5))
+        case "RT": return min(0.5, max(0, state.rightTrigger * 0.5))
+        case "LS-X": return state.leftStickX
+        case "LS-Y": return state.leftStickY
+        case "RS-X": return state.rightStickX
+        case "RS-Y": return state.rightStickY
+        default: return 0
+        }
+    }
+
+    private func isAxis(_ token: String) -> Bool {
+        token == "LS-X" || token == "LS-Y" || token == "RS-X" || token == "RS-Y"
+    }
+
+    private func toggleCamera(index: Int) {
+        guard cameraConfigs.indices.contains(index) else { return }
+        cameraConfigs[index].isEnabled.toggle()
     }
 
     private static func resolveSaveLocation(from settings: SettingsStore) -> URL? {

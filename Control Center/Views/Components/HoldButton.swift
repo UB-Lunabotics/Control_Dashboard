@@ -11,7 +11,7 @@ struct HoldButton: View {
     var body: some View {
         Text(title)
             .font(.dashboardBody(12))
-            .frame(maxWidth: .infinity, minHeight: 32)
+            .frame(maxWidth: .infinity, minHeight: 38)
             .background(tint.opacity(isPressed ? 0.8 : 0.35))
             .foregroundStyle(DashboardTheme.textPrimary)
             .clipShape(RoundedRectangle(cornerRadius: 10))

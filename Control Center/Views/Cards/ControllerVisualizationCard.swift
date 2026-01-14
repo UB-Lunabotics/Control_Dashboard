@@ -5,18 +5,13 @@ struct ControllerVisualizationCard: View {
     @ObservedObject private var gamepad: GamepadManager
 
     @State private var showMapping: Bool = false
-    @State private var mapping: [String: String] = [
-        "Drive Forward": "Y",
-        "Drive Reverse": "A",
-        "Turn Left": "X",
-        "Turn Right": "B",
-        "Drum Up": "LT",
-        "Drum Down": "RT",
-        "Aux +": "+",
-        "Aux -": "-"
+    private let mappingButtons = [
+        "A", "B", "X", "Y",
+        "LT", "RT", "LB", "RB",
+        "+", "-",
+        "D-Up", "D-Down", "D-Left", "D-Right",
+        "LS-X", "LS-Y", "RS-X", "RS-Y"
     ]
-
-    private let mappingButtons = ["A", "B", "X", "Y", "LT", "RT", "+", "-"]
 
     init(state: AppState) {
         self.state = state
@@ -39,13 +34,17 @@ struct ControllerVisualizationCard: View {
                         .font(.dashboardBody(10))
                     }
                     .buttonStyle(.bordered)
-                    .controlSize(.mini)
+                    .controlSize(.regular)
                 }
 
+                if !showMapping {
                     HStack(alignment: .top, spacing: 16) {
-                        HStack(spacing: 12) {
-                            stickCircle(title: "Left", x: gamepad.state.leftStickX, y: gamepad.state.leftStickY)
-                            stickCircle(title: "Right", x: gamepad.state.rightStickX, y: gamepad.state.rightStickY)
+                        VStack(spacing: 8) {
+                            HStack(spacing: 12) {
+                                stickCircle(title: "Left", x: gamepad.state.leftStickX, y: gamepad.state.leftStickY)
+                                stickCircle(title: "Right", x: gamepad.state.rightStickX, y: gamepad.state.rightStickY)
+                            }
+                            dPadView(state: gamepad.state)
                         }
                         .frame(width: 160)
 
@@ -72,6 +71,7 @@ struct ControllerVisualizationCard: View {
                             }
                         }
                     }
+                }
 
                 if showMapping {
                     VStack(alignment: .leading, spacing: 6) {
@@ -79,15 +79,15 @@ struct ControllerVisualizationCard: View {
                             .font(.dashboardBody(10))
                             .foregroundStyle(DashboardTheme.textSecondary)
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 6) {
-                            ForEach(mapping.keys.sorted(), id: \.self) { key in
+                            ForEach(state.controllerMapping.keys.sorted(), id: \.self) { key in
                                 HStack {
                                     Text(key)
                                         .font(.dashboardBody(10))
                                         .foregroundStyle(DashboardTheme.textPrimary)
                                     Spacer()
                                     Picker("", selection: Binding(
-                                        get: { mapping[key] ?? "A" },
-                                        set: { mapping[key] = $0 }
+                                        get: { state.controllerMapping[key] ?? "A" },
+                                        set: { state.controllerMapping[key] = $0 }
                                     )) {
                                         ForEach(mappingButtons, id: \.self) { option in
                                             Text(option).tag(option)
@@ -174,4 +174,32 @@ private func stickCircle(title: String, x: Double, y: Double) -> some View {
             .font(.dashboardBody(10))
             .foregroundStyle(DashboardTheme.textSecondary)
     }
+}
+
+private func dPadView(state: GamepadState) -> some View {
+    let size: CGFloat = 50
+    return ZStack {
+        RoundedRectangle(cornerRadius: 4)
+            .stroke(DashboardTheme.cardBorder.opacity(0.6), lineWidth: 1)
+            .frame(width: size, height: size)
+
+        dPadSegment(isActive: state.dpadUpPressed)
+            .frame(width: size * 0.32, height: size * 0.5)
+            .offset(y: -size * 0.25)
+        dPadSegment(isActive: state.dpadDownPressed)
+            .frame(width: size * 0.32, height: size * 0.5)
+            .offset(y: size * 0.25)
+        dPadSegment(isActive: state.dpadLeftPressed)
+            .frame(width: size * 0.5, height: size * 0.32)
+            .offset(x: -size * 0.25)
+        dPadSegment(isActive: state.dpadRightPressed)
+            .frame(width: size * 0.5, height: size * 0.32)
+            .offset(x: size * 0.25)
+    }
+}
+
+private func dPadSegment(isActive: Bool) -> some View {
+    let color = isActive ? DashboardTheme.accent : DashboardTheme.cardBorder
+    return RoundedRectangle(cornerRadius: 3)
+        .fill(color.opacity(isActive ? 0.8 : 0.35))
 }

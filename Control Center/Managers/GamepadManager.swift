@@ -16,6 +16,10 @@ struct GamepadState {
     var buttonMinusPressed: Bool = false
     var buttonLBPressed: Bool = false
     var buttonRBPressed: Bool = false
+    var dpadUpPressed: Bool = false
+    var dpadDownPressed: Bool = false
+    var dpadLeftPressed: Bool = false
+    var dpadRightPressed: Bool = false
 }
 
 final class GamepadManager: ObservableObject {
@@ -30,6 +34,7 @@ final class GamepadManager: ObservableObject {
     var onDriveCommand: ((Double, Double) -> Void)?
     var onDrumCommand: ((Double, Double) -> Void)?
     var onEStop: (() -> Void)?
+    var onStateUpdate: ((GamepadState) -> Void)?
 
     private var pollTimer: Timer?
 
@@ -93,6 +98,10 @@ final class GamepadManager: ObservableObject {
         updated.buttonMinusPressed = gamepad.buttonOptions?.isPressed ?? false
         updated.buttonLBPressed = gamepad.leftShoulder.isPressed
         updated.buttonRBPressed = gamepad.rightShoulder.isPressed
+        updated.dpadUpPressed = gamepad.dpad.up.isPressed
+        updated.dpadDownPressed = gamepad.dpad.down.isPressed
+        updated.dpadLeftPressed = gamepad.dpad.left.isPressed
+        updated.dpadRightPressed = gamepad.dpad.right.isPressed
         state = updated
 
         if state.buttonBPressed {
@@ -108,16 +117,7 @@ final class GamepadManager: ObservableObject {
 
     private func emitCommands() {
         guard isEnabled, isConnected else { return }
-        let vRaw = applyDeadzone(state.leftStickY)
-        let wRaw = applyDeadzone(state.rightStickX)
-        let v = applySensitivity(vRaw)
-        let w = applySensitivity(wRaw)
-        onDriveCommand?(v, w)
-
-        let spin = applySensitivity(state.rightTrigger) - applySensitivity(state.leftTrigger)
-        if abs(spin) > 0.01 {
-            onDrumCommand?(0, spin)
-        }
+        onStateUpdate?(state)
     }
 
     private func applyDeadzone(_ value: Double) -> Double {
@@ -130,5 +130,10 @@ final class GamepadManager: ObservableObject {
 
     private func applySensitivity(_ value: Double) -> Double {
         value * bindings.sensitivity
+    }
+
+    private func scaledTrigger(_ value: Double) -> Double {
+        let scaled = value * 0.5 * bindings.sensitivity
+        return min(0.5, max(0, scaled))
     }
 }
