@@ -30,7 +30,20 @@ struct TopBarView: View {
                 }
             }
 
-            Spacer(minLength: 12)
+            Spacer(minLength: 8)
+
+            topBarSection(title: "Indicators") {
+                HStack(spacing: 6) {
+                    StatusPill(text: state.systemPowerOn ? "Power ON" : "Power OFF", color: state.systemPowerOn ? DashboardTheme.success : DashboardTheme.warning)
+                    StatusPill(text: state.autonomousOn ? "Auto ON" : "Auto OFF", color: state.autonomousOn ? DashboardTheme.success : DashboardTheme.warning)
+                    StatusPill(text: state.eStopActive ? "E-Stop ACTIVE" : "E-Stop ARMED", color: state.eStopActive ? DashboardTheme.danger : DashboardTheme.warning)
+                    StatusPill(text: state.controllerEnabled ? "Controller ON" : "Controller OFF", color: state.controllerEnabled ? DashboardTheme.success : DashboardTheme.warning)
+                    StatusPill(text: state.driveEnabled ? "Drive ON" : "Drive OFF", color: state.driveEnabled ? DashboardTheme.success : DashboardTheme.warning)
+                    StatusPill(text: state.drumEnabled ? "Drum ON" : "Drum OFF", color: state.drumEnabled ? DashboardTheme.success : DashboardTheme.warning)
+                }
+            }
+
+            Spacer(minLength: 8)
 
             topBarSection(title: "IP Settings") {
                 HStack(spacing: 8) {
@@ -54,7 +67,7 @@ struct TopBarView: View {
                 }
             }
 
-            topBarSection(title: "Indicators and Metrics") {
+            topBarSection(title: "Metrics") {
                 HStack(spacing: 8) {
                     StatusPill(text: connectionLabel, color: connectionColor)
                     metricLabel("Ping", value: "\(Int(state.metrics.pingMs)) ms")
@@ -69,17 +82,12 @@ struct TopBarView: View {
                         .toggleStyle(.switch)
                     Toggle("Auto", isOn: autonomousBinding)
                         .toggleStyle(.switch)
-                    Button(state.eStopActive ? "Reset" : "E-STOP") {
-                        if state.eStopActive {
-                            state.resetEStop()
-                        } else {
-                            state.activateEStop()
-                        }
+                    Toggle(isOn: eStopBinding) {
+                        Text("E-Stop")
                     }
-                    .buttonStyle(.bordered)
+                    .toggleStyle(.switch)
                     .tint(DashboardTheme.danger)
                     .controlSize(.small)
-                    .keyboardShortcut("e", modifiers: [])
                 }
                 .font(.dashboardBody(10))
                 .foregroundStyle(DashboardTheme.textPrimary)
@@ -161,6 +169,19 @@ struct TopBarView: View {
             get: { state.autonomousOn },
             set: { value in
                 state.setMode(systemPower: state.systemPowerOn, autonomous: value)
+            }
+        )
+    }
+
+    private var eStopBinding: Binding<Bool> {
+        Binding(
+            get: { state.eStopActive },
+            set: { value in
+                if value {
+                    state.activateEStop()
+                } else {
+                    state.resetEStop()
+                }
             }
         )
     }

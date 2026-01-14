@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct ContentView: View { 
     @StateObject private var state = AppState()
     @Environment(\.scenePhase) private var scenePhase
 

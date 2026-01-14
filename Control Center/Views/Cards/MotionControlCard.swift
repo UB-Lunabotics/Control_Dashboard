@@ -13,6 +13,13 @@ struct MotionControlCard: View {
     var body: some View {
         CardView(title: "Motion Control") {
             VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 6) {
+                    StatusPill(text: state.driveEnabled ? "Drive ON" : "Drive OFF", color: state.driveEnabled ? DashboardTheme.success : DashboardTheme.warning)
+                    StatusPill(text: state.drumEnabled ? "Drum ON" : "Drum OFF", color: state.drumEnabled ? DashboardTheme.success : DashboardTheme.warning)
+                    StatusPill(text: state.controllerEnabled ? "Controller ON" : "Controller OFF", color: state.controllerEnabled ? DashboardTheme.success : DashboardTheme.warning)
+                    StatusPill(text: state.eStopActive ? "E-Stop ACTIVE" : "E-Stop ARMED", color: state.eStopActive ? DashboardTheme.danger : DashboardTheme.warning)
+                }
+
                 sectionHeader("Drive train")
                 HStack(spacing: 8) {
                     profileList(title: "Drive Profiles", profiles: state.driveProfiles.map { $0.name }, active: $activeDriveProfile)

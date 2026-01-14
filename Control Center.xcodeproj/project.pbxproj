@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8B35CE122F178F300011D3B4 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 8B35CE112F178F300011D3B4 /* SwiftTerm */; };
+		8B35CE142F178F300011D3B4 /* SwiftTermFuzz in Frameworks */ = {isa = PBXBuildFile; productRef = 8B35CE132F178F300011D3B4 /* SwiftTermFuzz */; };
+		8B35CE162F178F300011D3B4 /* termcast in Frameworks */ = {isa = PBXBuildFile; productRef = 8B35CE152F178F300011D3B4 /* termcast */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		8B35CD362F175A730011D3B4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +58,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B35CE122F178F300011D3B4 /* SwiftTerm in Frameworks */,
+				8B35CE142F178F300011D3B4 /* SwiftTermFuzz in Frameworks */,
+				8B35CE162F178F300011D3B4 /* termcast in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +121,9 @@
 			);
 			name = "Control Center";
 			packageProductDependencies = (
+				8B35CE112F178F300011D3B4 /* SwiftTerm */,
+				8B35CE132F178F300011D3B4 /* SwiftTermFuzz */,
+				8B35CE152F178F300011D3B4 /* termcast */,
 			);
 			productName = "Control Center";
 			productReference = 8B35CD272F175A710011D3B4 /* Control Center.app */;
@@ -195,6 +207,9 @@
 			);
 			mainGroup = 8B35CD1E2F175A710011D3B4;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8B35CE102F178F2F0011D3B4 /* XCRemoteSwiftPackageReference "SwiftTerm" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8B35CD282F175A710011D3B4 /* Products */;
 			projectDirPath = "";
@@ -551,6 +566,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8B35CE102F178F2F0011D3B4 /* XCRemoteSwiftPackageReference "SwiftTerm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/migueldeicaza/SwiftTerm";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8B35CE112F178F300011D3B4 /* SwiftTerm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B35CE102F178F2F0011D3B4 /* XCRemoteSwiftPackageReference "SwiftTerm" */;
+			productName = SwiftTerm;
+		};
+		8B35CE132F178F300011D3B4 /* SwiftTermFuzz */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B35CE102F178F2F0011D3B4 /* XCRemoteSwiftPackageReference "SwiftTerm" */;
+			productName = SwiftTermFuzz;
+		};
+		8B35CE152F178F300011D3B4 /* termcast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8B35CE102F178F2F0011D3B4 /* XCRemoteSwiftPackageReference "SwiftTerm" */;
+			productName = termcast;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8B35CD1F2F175A710011D3B4 /* Project object */;
 }
