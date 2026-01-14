@@ -29,6 +29,12 @@ final class Logger: ObservableObject {
     }
 
     func saveSnapshot(state: AppStateSnapshot) {
+        if !Thread.isMainThread {
+            DispatchQueue.main.async { [weak self] in
+                self?.saveSnapshot(state: state)
+            }
+            return
+        }
         let panel = NSSavePanel()
         panel.nameFieldStringValue = "dashboard_snapshot_\(timestampString()).json"
         if panel.runModal() == .OK, let url = panel.url {

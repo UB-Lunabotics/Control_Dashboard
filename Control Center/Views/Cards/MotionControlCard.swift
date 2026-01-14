@@ -7,9 +7,6 @@ struct MotionControlCard: View {
     @State private var activeLeverProfile: String? = nil
     @State private var activeDrumProfile: String? = nil
 
-    private let leverProfiles = ["Lift Soft", "Lift Normal", "Lift Aggressive"]
-    private let drumProfiles = ["Dig", "Dump", "Balance"]
-
     var body: some View {
         CardView(title: "Motion Control") {
             VStack(alignment: .leading, spacing: 8) {
@@ -18,7 +15,6 @@ struct MotionControlCard: View {
                     (state.controllerEnabled ? "Controller ON" : "Controller OFF", state.controllerEnabled ? DashboardTheme.success : DashboardTheme.warning)
                 ])
                 HStack(spacing: 8) {
-                    profileList(title: "Drive Profiles", profiles: state.driveProfiles.map { $0.name }, active: $activeDriveProfile)
                     drivePad
                 }
                 if let activeDriveProfile {
@@ -30,7 +26,6 @@ struct MotionControlCard: View {
                     (state.eStopActive ? "E-Stop" : "Safe", state.eStopActive ? DashboardTheme.danger : DashboardTheme.success)
                 ])
                 HStack(spacing: 8) {
-                    profileList(title: "Lever Profiles", profiles: leverProfiles, active: $activeLeverProfile)
                     leverButtons
                 }
 
@@ -39,7 +34,6 @@ struct MotionControlCard: View {
                     (state.eStopActive ? "E-Stop" : "Safe", state.eStopActive ? DashboardTheme.danger : DashboardTheme.success)
                 ])
                 HStack(spacing: 8) {
-                    profileList(title: "Drum Profiles", profiles: drumProfiles, active: $activeDrumProfile)
                     drumButtons
                 }
             }
@@ -56,35 +50,6 @@ struct MotionControlCard: View {
                 StatusPill(text: item.0, color: item.1)
             }
         }
-    }
-
-    private func profileList(title: String, profiles: [String], active: Binding<String?>) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.dashboardBody(10))
-                .foregroundStyle(DashboardTheme.textSecondary)
-            ForEach(profiles, id: \.self) { name in
-                HStack(spacing: 6) {
-                    Button(name) {
-                        if title == "Drive Profiles", let profile = state.driveProfiles.first(where: { $0.name == name }) {
-                            state.updateDriveProfile(profile)
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    .tint(DashboardTheme.accent)
-
-                    Button(action: {
-                        active.wrappedValue = (active.wrappedValue == name) ? nil : name
-                    }) {
-                        Image(systemName: "gearshape")
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var drivePad: some View {

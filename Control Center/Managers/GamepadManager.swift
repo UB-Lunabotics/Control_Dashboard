@@ -14,6 +14,8 @@ struct GamepadState {
     var buttonYPressed: Bool = false
     var buttonPlusPressed: Bool = false
     var buttonMinusPressed: Bool = false
+    var buttonLBPressed: Bool = false
+    var buttonRBPressed: Bool = false
 }
 
 final class GamepadManager: ObservableObject {
@@ -89,6 +91,8 @@ final class GamepadManager: ObservableObject {
         updated.buttonYPressed = gamepad.buttonY.isPressed
         updated.buttonPlusPressed = gamepad.buttonMenu.isPressed
         updated.buttonMinusPressed = gamepad.buttonOptions?.isPressed ?? false
+        updated.buttonLBPressed = gamepad.leftShoulder.isPressed
+        updated.buttonRBPressed = gamepad.rightShoulder.isPressed
         state = updated
 
         if state.buttonBPressed {
