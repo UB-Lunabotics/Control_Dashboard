@@ -20,11 +20,12 @@ struct CardView<Content: View>: View {
         .padding(8)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(DashboardTheme.cardBackground.opacity(0.25))
+                .fill(DashboardTheme.panelGradient.opacity(0.9))
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(DashboardTheme.cardBorder.opacity(0.35), lineWidth: 1)
                 )
+                .shadow(color: DashboardTheme.cardGlow.opacity(0.2), radius: 10, x: 0, y: 6)
         )
     }
 }

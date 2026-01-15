@@ -15,21 +15,84 @@ struct ContentView: View {
         ZStack {
             DashboardTheme.backgroundGradient.ignoresSafeArea()
                 .overlay(
+                    ZStack {
+                        RadialGradient(
+                            colors: [
+                                DashboardTheme.accentSoft.opacity(0.18),
+                                Color.clear
+                            ],
+                            center: .topTrailing,
+                            startRadius: 40,
+                            endRadius: 520
+                        )
+                        RadialGradient(
+                            colors: [
+                                DashboardTheme.accent.opacity(0.12),
+                                Color.clear
+                            ],
+                            center: .bottomLeading,
+                            startRadius: 60,
+                            endRadius: 560
+                        )
+                    }
+                )
+                .overlay(
                     Canvas { context, size in
-                        let spacing: CGFloat = 48
-                        for x in stride(from: 0, through: size.width, by: spacing) {
+                        let grid: CGFloat = 48
+                        for x in stride(from: 0, through: size.width, by: grid) {
                             var path = Path()
                             path.move(to: CGPoint(x: x, y: 0))
                             path.addLine(to: CGPoint(x: x, y: size.height))
-                            context.stroke(path, with: .color(DashboardTheme.cardBorder.opacity(0.15)), lineWidth: 0.5)
+                            context.stroke(path, with: .color(DashboardTheme.cardBorder.opacity(0.12)), lineWidth: 0.5)
                         }
-                        for y in stride(from: 0, through: size.height, by: spacing) {
+                        for y in stride(from: 0, through: size.height, by: grid) {
                             var path = Path()
                             path.move(to: CGPoint(x: 0, y: y))
                             path.addLine(to: CGPoint(x: size.width, y: y))
-                            context.stroke(path, with: .color(DashboardTheme.cardBorder.opacity(0.15)), lineWidth: 0.5)
+                            context.stroke(path, with: .color(DashboardTheme.cardBorder.opacity(0.12)), lineWidth: 0.5)
                         }
                     }
+                    .allowsHitTesting(false)
+                )
+                .overlay(
+                    Canvas { context, size in
+                        let dotSpacing: CGFloat = 26
+                        let dotSize: CGFloat = 1.2
+                        for x in stride(from: 0, through: size.width, by: dotSpacing) {
+                            for y in stride(from: 0, through: size.height, by: dotSpacing) {
+                                let rect = CGRect(x: x, y: y, width: dotSize, height: dotSize)
+                                context.fill(
+                                    Path(ellipseIn: rect),
+                                    with: .color(DashboardTheme.textSecondary.opacity(0.06))
+                                )
+                            }
+                        }
+                    }
+                    .blendMode(.plusLighter)
+                    .allowsHitTesting(false)
+                )
+                .overlay(
+                    Canvas { context, size in
+                        let stripeSpacing: CGFloat = 14
+                        var y: CGFloat = 0
+                        while y <= size.height {
+                            var path = Path()
+                            path.move(to: CGPoint(x: 0, y: y))
+                            path.addLine(to: CGPoint(x: size.width, y: y))
+                            context.stroke(path, with: .color(Color.white.opacity(0.04)), lineWidth: 0.5)
+                            y += stripeSpacing
+                        }
+                        let diagSpacing: CGFloat = 120
+                        var x: CGFloat = -size.height
+                        while x <= size.width {
+                            var path = Path()
+                            path.move(to: CGPoint(x: x, y: 0))
+                            path.addLine(to: CGPoint(x: x + size.height, y: size.height))
+                            context.stroke(path, with: .color(Color.white.opacity(0.03)), lineWidth: 0.6)
+                            x += diagSpacing
+                        }
+                    }
+                    .blendMode(.overlay)
                     .allowsHitTesting(false)
                 )
 
