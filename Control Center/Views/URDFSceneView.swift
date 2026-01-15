@@ -3,6 +3,7 @@ import SceneKit
 
 struct URDFSceneView: View {
     @ObservedObject var model: URDFViewModel
+    @State private var showAxisTuning = false
 
     var body: some View {
         VStack(spacing: 6) {
@@ -39,30 +40,37 @@ struct URDFSceneView: View {
                 cameraButton("Top") { model.setCamera(0, 1.6, 0) }
                 cameraButton("Iso") { model.setCamera(0.8, 0.9, 1.2) }
                 Spacer()
+                Button(showAxisTuning ? "Hide Axis Tuning" : "Axis Tuning") {
+                    showAxisTuning.toggle()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.mini)
             }
             .frame(maxWidth: .infinity)
 
-            URDFAxisControlsView(rotX: $model.rotX, rotY: $model.rotY, rotZ: $model.rotZ, flipX: $model.flipX, flipY: $model.flipY, flipZ: $model.flipZ)
-                .onChange(of: model.rotX) { _, _ in model.reloadScene(preserveCamera: true) }
-                .onChange(of: model.rotY) { _, _ in model.reloadScene(preserveCamera: true) }
-                .onChange(of: model.rotZ) { _, _ in model.reloadScene(preserveCamera: true) }
-                .onChange(of: model.flipX) { _, _ in model.reloadScene(preserveCamera: true) }
-                .onChange(of: model.flipY) { _, _ in model.reloadScene(preserveCamera: true) }
-                .onChange(of: model.flipZ) { _, _ in model.reloadScene(preserveCamera: true) }
+            if showAxisTuning {
+                URDFAxisControlsView(rotX: $model.rotX, rotY: $model.rotY, rotZ: $model.rotZ, flipX: $model.flipX, flipY: $model.flipY, flipZ: $model.flipZ)
+                    .onChange(of: model.rotX) { _, _ in model.reloadScene(preserveCamera: true) }
+                    .onChange(of: model.rotY) { _, _ in model.reloadScene(preserveCamera: true) }
+                    .onChange(of: model.rotZ) { _, _ in model.reloadScene(preserveCamera: true) }
+                    .onChange(of: model.flipX) { _, _ in model.reloadScene(preserveCamera: true) }
+                    .onChange(of: model.flipY) { _, _ in model.reloadScene(preserveCamera: true) }
+                    .onChange(of: model.flipZ) { _, _ in model.reloadScene(preserveCamera: true) }
 
-            URDFMeshAxisControlsView(
-                selectedMesh: $model.selectedMesh,
-                meshNames: model.meshNames(),
-                flipX: $model.meshFlipX,
-                flipY: $model.meshFlipY,
-                flipZ: $model.meshFlipZ,
-                swapYZ: $model.meshSwapYZ
-            )
-            .onChange(of: model.selectedMesh) { _, _ in model.updateMeshSelection() }
-            .onChange(of: model.meshFlipX) { _, _ in model.updateMeshOverride() }
-            .onChange(of: model.meshFlipY) { _, _ in model.updateMeshOverride() }
-            .onChange(of: model.meshFlipZ) { _, _ in model.updateMeshOverride() }
-            .onChange(of: model.meshSwapYZ) { _, _ in model.updateMeshOverride() }
+                URDFMeshAxisControlsView(
+                    selectedMesh: $model.selectedMesh,
+                    meshNames: model.meshNames(),
+                    flipX: $model.meshFlipX,
+                    flipY: $model.meshFlipY,
+                    flipZ: $model.meshFlipZ,
+                    swapYZ: $model.meshSwapYZ
+                )
+                .onChange(of: model.selectedMesh) { _, _ in model.updateMeshSelection() }
+                .onChange(of: model.meshFlipX) { _, _ in model.updateMeshOverride() }
+                .onChange(of: model.meshFlipY) { _, _ in model.updateMeshOverride() }
+                .onChange(of: model.meshFlipZ) { _, _ in model.updateMeshOverride() }
+                .onChange(of: model.meshSwapYZ) { _, _ in model.updateMeshOverride() }
+            }
         }
     }
 
