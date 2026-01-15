@@ -33,24 +33,31 @@ struct TopBarView: View {
             Spacer(minLength: 8)
 
             topBarSection(title: "IP Settings") {
-                HStack(spacing: 8) {
-                    TextField("Host", text: $state.host)
-                        .textFieldStyle(.roundedBorder)
-                        .controlSize(.small)
-                        .frame(width: 140)
-                    TextField("Port", value: $state.port, formatter: NumberFormatter())
-                        .textFieldStyle(.roundedBorder)
-                        .controlSize(.small)
-                        .frame(width: 60)
-                    Button(state.connectionState == .connected ? "Disconnect" : "Connect") {
-                        if state.connectionState == .connected {
-                            state.disconnect()
-                        } else {
-                            state.connect()
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
+                        TextField("Host", text: $state.host)
+                            .textFieldStyle(.roundedBorder)
+                            .controlSize(.small)
+                            .frame(width: 140)
+                        TextField("Port", value: $state.port, formatter: NumberFormatter())
+                            .textFieldStyle(.roundedBorder)
+                            .controlSize(.small)
+                            .frame(width: 60)
+                        Button(state.connectionState == .connected ? "Disconnect" : "Connect") {
+                            if state.connectionState == .connected {
+                                state.disconnect()
+                            } else {
+                                state.connect()
+                            }
                         }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
+                    Button(state.showConnectionLog ? "Hide Log" : "Show Log") {
+                        state.showConnectionLog.toggle()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.mini)
                 }
             }
 
@@ -75,6 +82,7 @@ struct TopBarView: View {
                         metricLabel("Loss", value: String(format: "%.1f%%", state.metrics.packetLossPercent))
                         metricLabel("Last", value: lastTelemetryLabel)
                     }
+                    .frame(width: 240, alignment: .leading)
                 }
 
                 topBarSection(title: "System / E-Stop / Auto") {
@@ -92,7 +100,8 @@ struct TopBarView: View {
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(DashboardTheme.danger)
-                        .controlSize(.small)
+                        .controlSize(.regular)          // normal macOS size
+
                         Button("Reset") {
                             state.sendStopAll()
                         }

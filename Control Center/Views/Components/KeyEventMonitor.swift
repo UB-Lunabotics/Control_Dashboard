@@ -5,27 +5,44 @@ struct KeyEventMonitor: NSViewRepresentable {
     let onKeyDown: (NSEvent) -> Void
 
     func makeNSView(context: Context) -> NSView {
-        let view = KeyCaptureView()
-        view.onKeyDown = onKeyDown
-        DispatchQueue.main.async {
-            view.window?.makeFirstResponder(view)
-        }
+        let view = NSView()
+        context.coordinator.startMonitoring()
         return view
     }
 
     func updateNSView(_ nsView: NSView, context: Context) {
-        DispatchQueue.main.async {
-            nsView.window?.makeFirstResponder(nsView)
-        }
+        context.coordinator.startMonitoring()
     }
 
-    final class KeyCaptureView: NSView {
-        var onKeyDown: ((NSEvent) -> Void)?
+    static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
+        coordinator.stopMonitoring()
+    }
 
-        override var acceptsFirstResponder: Bool { true }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onKeyDown: onKeyDown)
+    }
 
-        override func keyDown(with event: NSEvent) {
-            onKeyDown?(event)
+    final class Coordinator {
+        private var monitor: Any?
+        private let onKeyDown: (NSEvent) -> Void
+
+        init(onKeyDown: @escaping (NSEvent) -> Void) {
+            self.onKeyDown = onKeyDown
+        }
+
+        func startMonitoring() {
+            if monitor != nil { return }
+            monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+                self?.onKeyDown(event)
+                return event
+            }
+        }
+
+        func stopMonitoring() {
+            if let monitor {
+                NSEvent.removeMonitor(monitor)
+                self.monitor = nil
+            }
         }
     }
 }

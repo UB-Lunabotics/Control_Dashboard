@@ -2,6 +2,11 @@ import Foundation
 import SwiftUI
 
 final class AppState: ObservableObject {
+    private static let timestampFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss"
+        return formatter
+    }()
     @Published var host: String {
         didSet { settings.saveHost(host) }
     }
@@ -56,6 +61,8 @@ final class AppState: ObservableObject {
     ]
 
     @Published var loggerStatus: String = "Idle"
+    @Published var connectionLog: [String] = []
+    @Published var showConnectionLog: Bool = false
 
     private let settings = SettingsStore.shared
     let webSocket = WebSocketManager()
@@ -98,6 +105,11 @@ final class AppState: ObservableObject {
         webSocket.onTelemetry = { [weak self] telemetry in
             DispatchQueue.main.async {
                 self?.handleTelemetry(telemetry)
+            }
+        }
+        webSocket.onLog = { [weak self] message in
+            DispatchQueue.main.async {
+                self?.appendConnectionLog(message)
             }
         }
         webSocket.onPingUpdate = { [weak self] ping in
@@ -148,6 +160,14 @@ final class AppState: ObservableObject {
 
     func toggleTheme() {
         isDarkTheme.toggle()
+    }
+
+    func appendConnectionLog(_ message: String) {
+        let timestamp = Self.timestampFormatter.string(from: Date())
+        connectionLog.append("[\(timestamp)] \(message)")
+        if connectionLog.count > 120 {
+            connectionLog.removeFirst(connectionLog.count - 120)
+        }
     }
 
     func activateEStop() {

@@ -1,0 +1,390 @@
+#VRML_SIM R2025a utf8
+# license: Apache License 2.0
+# license url: http://www.apache.org/licenses/LICENSE-2.0
+# This is a proto file for Webots for the Assem1
+# Extracted from: /Users/sujalbhakare/Desktop/Code/Lunabotics/URDF/urdf/Assem1.urdf
+
+PROTO Assem1 [
+  field  SFVec3f     translation     0 0 0
+  field  SFRotation  rotation        0 0 1 0
+  field  SFString    name            "Assem1"  # Is `Robot.name`.
+  field  SFString    controller      "void"    # Is `Robot.controller`.
+  field  MFString    controllerArgs  []        # Is `Robot.controllerArgs`.
+  field  SFString    customData      ""        # Is `Robot.customData`.
+  field  SFBool      supervisor      FALSE     # Is `Robot.supervisor`.
+  field  SFBool      synchronization TRUE      # Is `Robot.synchronization`.
+  field  SFBool      selfCollision   FALSE     # Is `Robot.selfCollision`.
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    controller IS controller
+    controllerArgs IS controllerArgs
+    customData IS customData
+    supervisor IS supervisor
+    synchronization IS synchronization
+    selfCollision IS selfCollision
+    children [
+      Shape {
+        appearance DEF Frame_material PBRAppearance {
+          baseColor 0.752940 0.752940 0.752940
+          roughness 1.000000
+          metalness 0
+        }
+        geometry DEF Frame Mesh {
+          url "../meshes/Frame.STL"
+        }
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          axis 0.000003 -0.000003 1.000000
+          anchor 0.398870 -0.651100 -0.155760
+        }
+        device [
+          RotationalMotor {
+            name "WheelFR"
+            maxTorque 10000
+          }
+          PositionSensor {
+            name "WheelFR_sensor"
+          }
+        ]
+        endPoint Solid {
+          translation 0.398870 -0.651100 -0.155760
+          rotation 0.870090 0.348529 0.348528 1.709512
+          children [
+            Shape {
+              appearance DEF WheelFR_material PBRAppearance {
+                baseColor 0.752940 0.752940 0.752940
+                roughness 1.000000
+                metalness 0
+              }
+              geometry DEF WheelFR Mesh {
+                url "../meshes/WheelFR.STL"
+              }
+            }
+          ]
+          name "WheelFR"
+          boundingObject USE WheelFR
+          physics Physics {
+            density -1
+            mass 2.152400
+            centerOfMass [ -0.000000 -0.054293 0.000000 ]
+            inertiaMatrix [
+              9.774400e-03 1.738300e-02 9.774400e-03
+              1.890700e-18 3.686300e-17 -1.486200e-17
+            ]
+          }
+        }
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          axis 0.000000 -0.000004 1.000000
+          anchor 0.398870 -0.651100 0.347930
+        }
+        device [
+          RotationalMotor {
+            name "WheelFL"
+            maxTorque 10000
+          }
+          PositionSensor {
+            name "WheelFL_sensor"
+          }
+        ]
+        endPoint Solid {
+          translation 0.398870 -0.651100 0.347930
+          rotation 1.000000 0.000000 0.000000 1.570800
+          children [
+            Shape {
+              appearance DEF WheelFL_material PBRAppearance {
+                baseColor 0.752940 0.752940 0.752940
+                roughness 1.000000
+                metalness 0
+              }
+              geometry DEF WheelFL Mesh {
+                url "../meshes/WheelFL.STL"
+              }
+            }
+          ]
+          name "WheelFL"
+          boundingObject USE WheelFL
+          physics Physics {
+            density -1
+            mass 2.152400
+            centerOfMass [ -0.000000 0.057302 0.000000 ]
+            inertiaMatrix [
+              9.774400e-03 1.738300e-02 9.774400e-03
+              2.410000e-18 7.574500e-18 -1.278600e-17
+            ]
+          }
+        }
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          axis 0.000000 -0.000004 1.000000
+          anchor 0.398760 -0.161900 -0.155760
+        }
+        device [
+          RotationalMotor {
+            name "WheelRR"
+            maxTorque 10000
+          }
+          PositionSensor {
+            name "WheelRR_sensor"
+          }
+        ]
+        endPoint Solid {
+          translation 0.398760 -0.161900 -0.155760
+          rotation 1.000000 0.000000 0.000000 1.570800
+          children [
+            Shape {
+              appearance DEF WheelRR_material PBRAppearance {
+                baseColor 0.752941 0.752941 0.752941
+                roughness 1.000000
+                metalness 0
+              }
+              geometry DEF WheelRR Mesh {
+                url "../meshes/WheelRR.STL"
+              }
+            }
+          ]
+          name "WheelRR"
+          boundingObject USE WheelRR
+          physics Physics {
+            density -1
+            mass 2.152377
+            centerOfMass [ -0.000000 -0.054293 -0.000000 ]
+            inertiaMatrix [
+              9.774372e-03 1.738329e-02 9.774372e-03
+              1.690427e-18 6.190434e-18 -1.424646e-17
+            ]
+          }
+        }
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          axis 0.000001 -0.000003 1.000000
+          anchor 0.398430 -0.162150 0.347930
+        }
+        device [
+          RotationalMotor {
+            name "WheelRL"
+            maxTorque 10000
+          }
+          PositionSensor {
+            name "WheelRL_sensor"
+          }
+        ]
+        endPoint Solid {
+          translation 0.398430 -0.162150 0.347930
+          rotation 0.972594 0.164410 0.164410 1.598585
+          children [
+            Shape {
+              appearance DEF WheelRL_material PBRAppearance {
+                baseColor 0.752941 0.752941 0.752941
+                roughness 1.000000
+                metalness 0
+              }
+              geometry DEF WheelRL Mesh {
+                url "../meshes/WheelRL.STL"
+              }
+            }
+          ]
+          name "WheelRL"
+          boundingObject USE WheelRL
+          physics Physics {
+            density -1
+            mass 2.152377
+            centerOfMass [ -0.000000 0.057302 0.000000 ]
+            inertiaMatrix [
+              9.774372e-03 1.738329e-02 9.774372e-03
+              3.606577e-18 -9.757820e-17 -1.517063e-17
+            ]
+          }
+        }
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          axis 0.000003 -0.000002 1.000000
+          anchor 0.415590 -0.160210 0.295040
+        }
+        device [
+          RotationalMotor {
+            name "ArmL"
+            maxPosition 1.57
+            maxTorque 10000
+          }
+          PositionSensor {
+            name "ArmL_sensor"
+          }
+        ]
+        endPoint Solid {
+          translation 0.415590 -0.160210 0.295040
+          rotation 0.768317 0.452599 0.452597 1.831354
+          children [
+            Shape {
+              appearance DEF ArmL_material PBRAppearance {
+                baseColor 0.898039 0.917647 0.929412
+                roughness 1.000000
+                metalness 0
+              }
+              geometry DEF ArmL Mesh {
+                url "../meshes/ArmL.STL"
+              }
+            }
+            HingeJoint {
+              jointParameters HingeJointParameters {
+                axis 0.000000 1.000000 0.000000
+                anchor -0.357500 0.000000 0.000458
+              }
+              device [
+                RotationalMotor {
+                  name "DrumRevL"
+                  maxTorque 10000
+                }
+                PositionSensor {
+                  name "DrumRevL_sensor"
+                }
+              ]
+              endPoint Solid {
+                translation -0.357500 0.000000 0.000458
+                rotation 0.000000 1.000000 0.000000 1.257900
+                children [
+                  Shape {
+                    appearance DEF DrumRevL_material PBRAppearance {
+                      baseColor 0.752940 0.752940 0.752940
+                      roughness 1.000000
+                      metalness 0
+                    }
+                    geometry DEF DrumRevL Mesh {
+                      url "../meshes/DrumRevL.STL"
+                    }
+                  }
+                ]
+                name "DrumRevL"
+                boundingObject USE DrumRevL
+                physics Physics {
+                  density -1
+                  mass 10.098000
+                  centerOfMass [ -0.000000 -0.181280 -0.000000 ]
+                  inertiaMatrix [
+                    1.463100e-01 2.881400e-01 1.463100e-01
+                    7.373300e-12 -4.857200e-17 -7.885700e-12
+                  ]
+                }
+              }
+            }
+          ]
+          name "ArmL"
+          boundingObject USE ArmL
+          physics Physics {
+            density -1
+            mass 0.315480
+            centerOfMass [ -0.181172 0.003000 0.000232 ]
+            inertiaMatrix [
+              6.612069e-05 4.100641e-03 4.036413e-03
+              -1.485411e-13 5.088506e-06 -4.088405e-15
+            ]
+          }
+        }
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          axis 0.000003 -0.000002 1.000000
+          anchor 0.415590 -0.160210 -0.064963
+        }
+        device [
+          RotationalMotor {
+            name "ArmR"
+            maxPosition 1.57
+            maxTorque 10000
+          }
+          PositionSensor {
+            name "ArmR_sensor"
+          }
+        ]
+        endPoint Solid {
+          translation 0.415590 -0.160210 -0.064963
+          rotation 0.768317 0.452599 0.452597 1.831354
+          children [
+            Shape {
+              appearance DEF ArmR_material PBRAppearance {
+                baseColor 0.898039 0.917647 0.929412
+                roughness 1.000000
+                metalness 0
+              }
+              geometry DEF ArmR Mesh {
+                url "../meshes/ArmR.STL"
+              }
+            }
+            HingeJoint {
+              jointParameters HingeJointParameters {
+                axis 0.000000 1.000000 0.000000
+                anchor -0.357500 0.000000 0.000458
+              }
+              device [
+                RotationalMotor {
+                  name "DrumRevR"
+                  maxTorque 10000
+                }
+                PositionSensor {
+                  name "DrumRevR_sensor"
+                }
+              ]
+              endPoint Solid {
+                translation -0.357500 0.000000 0.000458
+                rotation 0.000000 1.000000 0.000000 1.257900
+                children [
+                  Shape {
+                    appearance DEF DrumRevR_material PBRAppearance {
+                      baseColor 0.752941 0.752941 0.752941
+                      roughness 1.000000
+                      metalness 0
+                    }
+                    geometry DEF DrumRevR Mesh {
+                      url "../meshes/DrumRevR.STL"
+                    }
+                  }
+                ]
+                name "DrumRevR"
+                boundingObject USE DrumRevR
+                physics Physics {
+                  density -1
+                  mass 10.098436
+                  centerOfMass [ -0.000000 0.178723 -0.000000 ]
+                  inertiaMatrix [
+                    1.463122e-01 2.881375e-01 1.463122e-01
+                    7.373290e-12 -2.775558e-17 -7.885713e-12
+                  ]
+                }
+              }
+            }
+          ]
+          name "ArmR"
+          boundingObject USE ArmR
+          physics Physics {
+            density -1
+            mass 0.567807
+            centerOfMass [ -0.179775 -0.020000 0.000230 ]
+            inertiaMatrix [
+              3.141671e-04 7.767908e-03 7.751381e-03
+              -2.744207e-13 9.531870e-06 -7.482901e-16
+            ]
+          }
+        }
+      }
+    ]
+    name IS name
+    boundingObject USE Frame
+    physics Physics {
+      density -1
+      mass 13.897000
+      centerOfMass [ 0.351860 0.100520 0.290340 ]
+      inertiaMatrix [
+        2.688400e-01 1.326400e-01 1.684500e-01
+        -6.957800e-06 -4.017600e-05 -2.934100e-05
+      ]
+    }
+  }
+}

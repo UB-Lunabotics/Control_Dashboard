@@ -10,6 +10,8 @@
 		8B35CE122F178F300011D3B4 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 8B35CE112F178F300011D3B4 /* SwiftTerm */; };
 		8B35CE142F178F300011D3B4 /* SwiftTermFuzz in Frameworks */ = {isa = PBXBuildFile; productRef = 8B35CE132F178F300011D3B4 /* SwiftTermFuzz */; };
 		8B35CE162F178F300011D3B4 /* termcast in Frameworks */ = {isa = PBXBuildFile; productRef = 8B35CE152F178F300011D3B4 /* termcast */; };
+		8B35CE672F17E6910011D3B4 /* urdf in Resources */ = {isa = PBXBuildFile; fileRef = 8B35CE662F17E6910011D3B4 /* urdf */; };
+		8B35CE692F17E6A40011D3B4 /* meshes in Resources */ = {isa = PBXBuildFile; fileRef = 8B35CE682F17E6A40011D3B4 /* meshes */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,11 +35,36 @@
 		8B35CD272F175A710011D3B4 /* Control Center.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Control Center.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B35CD352F175A730011D3B4 /* Control CenterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Control CenterTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B35CD3F2F175A730011D3B4 /* Control CenterUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Control CenterUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B35CE662F17E6910011D3B4 /* urdf */ = {isa = PBXFileReference; lastKnownFileType = folder; path = urdf; sourceTree = "<group>"; };
+		8B35CE682F17E6A40011D3B4 /* meshes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = meshes; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8B35CE5B2F17E6720011D3B4 /* Exceptions for "Control Center" folder in "Control Center" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				meshes/ArmL.STL,
+				meshes/ArmR.STL,
+				meshes/DrumRevL.STL,
+				meshes/DrumRevR.STL,
+				meshes/Frame.STL,
+				meshes/WheelFL.STL,
+				meshes/WheelFR.STL,
+				meshes/WheelRL.STL,
+				meshes/WheelRR.STL,
+				urdf/Assem1.csv,
+				urdf/Assem1.urdf,
+			);
+			target = 8B35CD262F175A710011D3B4 /* Control Center */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8B35CD292F175A710011D3B4 /* Control Center */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8B35CE5B2F17E6720011D3B4 /* Exceptions for "Control Center" folder in "Control Center" target */,
+			);
 			path = "Control Center";
 			sourceTree = "<group>";
 		};
@@ -84,6 +111,8 @@
 		8B35CD1E2F175A710011D3B4 = {
 			isa = PBXGroup;
 			children = (
+				8B35CE682F17E6A40011D3B4 /* meshes */,
+				8B35CE662F17E6910011D3B4 /* urdf */,
 				8B35CD292F175A710011D3B4 /* Control Center */,
 				8B35CD382F175A730011D3B4 /* Control CenterTests */,
 				8B35CD422F175A730011D3B4 /* Control CenterUITests */,
@@ -227,6 +256,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B35CE692F17E6A40011D3B4 /* meshes in Resources */,
+				8B35CE672F17E6910011D3B4 /* urdf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

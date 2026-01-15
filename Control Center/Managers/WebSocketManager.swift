@@ -16,11 +16,14 @@ final class WebSocketManager: ObservableObject {
     var onReconnect: ((Int) -> Void)?
     var onDisconnect: ((Error?) -> Void)?
     var onStateChange: ((ConnectionState) -> Void)?
+    var onLog: ((String) -> Void)?
 
     func connect(host: String, port: Int) {
         let urlString = "ws://\(host):\(port)"
         guard let url = URL(string: urlString) else { return }
         currentURL = url
+        onLog?("Connect requested: \(urlString)")
+        onLog?("URLSessionWebSocketTask URL: \(url.absoluteString)")
         state = .connecting
         onStateChange?(.connecting)
         reconnectAttempt = 0
@@ -30,6 +33,7 @@ final class WebSocketManager: ObservableObject {
     func disconnect() {
         state = .disconnected
         onStateChange?(.disconnected)
+        onLog?("Disconnect requested")
         stopTimers()
         receiveTask?.cancel()
         receiveTask = nil
@@ -50,6 +54,7 @@ final class WebSocketManager: ObservableObject {
         let task = session.webSocketTask(with: url)
         self.task = task
         task.resume()
+        onLog?("WebSocket task started")
         state = .connecting
         onStateChange?(.connecting)
         startReceiveLoop()
@@ -67,12 +72,14 @@ final class WebSocketManager: ObservableObject {
                         self.state = .connected
                         self.onStateChange?(.connected)
                     }
+                    self.onLog?("Connected and receiving")
                     self.handleMessage(message)
                 } catch {
                     await MainActor.run {
                         self.state = .disconnected
                         self.onStateChange?(.disconnected)
                     }
+                    self.logError(error, context: "Receive error")
                     self.scheduleReconnect(error: error)
                     break
                 }
@@ -103,6 +110,7 @@ final class WebSocketManager: ObservableObject {
         stopTimers()
         guard let url = currentURL else { return }
         let delay = min(10.0, pow(1.6, Double(reconnectAttempt)))
+        onLog?("Reconnect #\(reconnectAttempt) in \(String(format: "%.1f", delay))s")
         reconnectTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { [weak self] _ in
             self?.startTask(url: url)
         }
@@ -118,7 +126,10 @@ final class WebSocketManager: ObservableObject {
         guard let task, state == .connected else { return }
         let started = Date()
         task.sendPing { [weak self] error in
-            guard error == nil else { return }
+            if let error {
+                self?.logError(error, context: "Ping error")
+                return
+            }
             let elapsed = Date().timeIntervalSince(started) * 1000.0
             DispatchQueue.main.async {
                 self?.onPingUpdate?(elapsed)
@@ -131,5 +142,14 @@ final class WebSocketManager: ObservableObject {
         reconnectTimer = nil
         pingTimer?.invalidate()
         pingTimer = nil
+    }
+
+    private func logError(_ error: Error, context: String) {
+        let nsError = error as NSError
+        var message = "\(context): \(nsError.domain) (\(nsError.code)) \(nsError.localizedDescription)"
+        if let underlying = nsError.userInfo[NSUnderlyingErrorKey] as? NSError {
+            message += " | underlying: \(underlying.domain) (\(underlying.code)) \(underlying.localizedDescription)"
+        }
+        onLog?(message)
     }
 }
