@@ -3,10 +3,11 @@ import SwiftTerm
 
 struct SwiftTermContainerView: NSViewRepresentable {
     let initialCommand: String
+    let knownHostsPath: String?
 
     func makeNSView(context: Context) -> SwiftTermNativeView {
         let view = SwiftTermNativeView(frame: .zero)
-        view.configure(initialCommand: initialCommand)
+        view.configure(initialCommand: initialCommand, knownHostsPath: knownHostsPath)
         return view
     }
 
@@ -33,10 +34,18 @@ final class SwiftTermNativeView: NSView, LocalProcessTerminalViewDelegate {
         term.frame = bounds
     }
 
-    func configure(initialCommand: String) {
-        term.startProcess(executable: "/bin/zsh", args: ["-l"])
+    func configure(initialCommand: String, knownHostsPath: String?) {
+        term.startProcess(executable: "/bin/zsh", args: ["-l", "-i"])
+        var bootstrap = ""
+        if let knownHostsPath, !knownHostsPath.isEmpty {
+            let escaped = knownHostsPath.replacingOccurrences(of: "\"", with: "\\\"")
+            bootstrap += "function ssh() { command /usr/bin/ssh -o UserKnownHostsFile=\"\(escaped)\" -o StrictHostKeyChecking=accept-new \"$@\"; }\n"
+        }
         if !initialCommand.isEmpty {
-            let bytes = Array((initialCommand + "\n").utf8)
+            bootstrap += initialCommand + "\n"
+        }
+        if !bootstrap.isEmpty {
+            let bytes = Array(bootstrap.utf8)
             term.send(data: bytes[...])
         }
     }

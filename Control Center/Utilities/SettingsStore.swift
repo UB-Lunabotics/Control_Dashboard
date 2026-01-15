@@ -13,6 +13,7 @@ struct SettingsStore {
         static let selectedProfileName = "drive.selected_profile"
         static let cameraConfigs = "camera.configs"
         static let saveLocationBookmark = "logger.save_location_bookmark"
+        static let sshFolderBookmark = "terminal.ssh_folder_bookmark"
     }
 
     func loadHost() -> String {
@@ -103,5 +104,13 @@ struct SettingsStore {
 
     func saveSaveLocationBookmark(_ value: Data?) {
         defaults.set(value, forKey: Keys.saveLocationBookmark)
+    }
+
+    func loadSSHFolderBookmark() -> Data? {
+        defaults.data(forKey: Keys.sshFolderBookmark)
+    }
+
+    func saveSSHFolderBookmark(_ value: Data?) {
+        defaults.set(value, forKey: Keys.sshFolderBookmark)
     }
 }
