@@ -60,3 +60,15 @@ enum ConnectionState: String {
     case connecting
     case connected
 }
+
+enum WebSocketDirection: String {
+    case outgoing
+    case incoming
+}
+
+struct WebSocketActivityEntry: Identifiable, Equatable {
+    let id = UUID()
+    let direction: WebSocketDirection
+    let text: String
+    let timestamp: Date
+}

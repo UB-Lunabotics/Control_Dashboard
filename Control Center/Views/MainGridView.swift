@@ -24,7 +24,10 @@ struct MainGridView: View {
                         .frame(height: proxy.size.height * 0.34)
 
                     LoggingPanelCard(state: state)
-                        .frame(height: proxy.size.height * 0.14)
+                        .frame(height: proxy.size.height * 0.12)
+
+                    WebSocketActivityCard(state: state)
+                        .frame(height: proxy.size.height * 0.2)
 
                     MotionControlCard(state: state)
                         .frame(maxHeight: .infinity)

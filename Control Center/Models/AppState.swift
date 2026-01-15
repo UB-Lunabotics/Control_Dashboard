@@ -63,6 +63,7 @@ final class AppState: ObservableObject {
     @Published var loggerStatus: String = "Idle"
     @Published var connectionLog: [String] = []
     @Published var showConnectionLog: Bool = false
+    @Published var webSocketActivity: [WebSocketActivityEntry] = []
 
     private let settings = SettingsStore.shared
     let webSocket = WebSocketManager()
@@ -188,6 +189,7 @@ final class AppState: ObservableObject {
 
     func sendStopAll() {
         webSocket.sendJSON(["type": "stop_all"])
+        appendWebSocketActivity(direction: .outgoing, text: "stop_all")
         lastCommandSent = "stop_all"
         logger.appendLine("{\"type\":\"stop_all\",\"ts\":\(Date().timeIntervalSince1970)}")
     }
@@ -197,6 +199,7 @@ final class AppState: ObservableObject {
         let scaledV = v * selectedDriveProfile.linearScale
         let scaledW = w * selectedDriveProfile.angularScale
         webSocket.sendJSON(["type": "drive", "v": scaledV, "w": scaledW])
+        appendWebSocketActivity(direction: .outgoing, text: String(format: "drive v=%.3f w=%.3f", scaledV, scaledW))
         lastCommandSent = "drive v=\(scaledV) w=\(scaledW)"
         logger.appendLine("{\"type\":\"drive\",\"v\":\(scaledV),\"w\":\(scaledW),\"ts\":\(Date().timeIntervalSince1970)}")
     }
@@ -204,6 +207,7 @@ final class AppState: ObservableObject {
     func sendDrum(lift: Double, spin: Double) {
         guard drumEnabled, !eStopActive else { return }
         webSocket.sendJSON(["type": "drum", "lift": lift, "spin": spin])
+        appendWebSocketActivity(direction: .outgoing, text: String(format: "drum lift=%.3f spin=%.3f", lift, spin))
         lastCommandSent = "drum lift=\(lift) spin=\(spin)"
         logger.appendLine("{\"type\":\"drum\",\"lift\":\(lift),\"spin\":\(spin),\"ts\":\(Date().timeIntervalSince1970)}")
     }
@@ -216,6 +220,7 @@ final class AppState: ObservableObject {
             "system_power": systemPower,
             "autonomous": autonomous
         ])
+        appendWebSocketActivity(direction: .outgoing, text: "set_mode power=\(systemPower) auto=\(autonomous)")
         lastCommandSent = "set_mode system_power=\(systemPower) autonomous=\(autonomous)"
     }
 
@@ -343,6 +348,7 @@ final class AppState: ObservableObject {
         connectionState = .connected
         lastTelemetry = telemetry
         metrics.lastTelemetryAt = Date()
+        appendWebSocketActivity(direction: .incoming, text: telemetrySummary(telemetry))
         if let ping = telemetry.ping_ms {
             metrics.pingMs = ping
         }
@@ -368,6 +374,26 @@ final class AppState: ObservableObject {
                 logger.appendLine(text)
             }
         }
+    }
+
+    private func appendWebSocketActivity(direction: WebSocketDirection, text: String) {
+        webSocketActivity.append(WebSocketActivityEntry(direction: direction, text: text, timestamp: Date()))
+        if webSocketActivity.count > 120 {
+            webSocketActivity.removeFirst(webSocketActivity.count - 120)
+        }
+    }
+
+    private func telemetrySummary(_ telemetry: TelemetryMessage) -> String {
+        let ping = telemetry.ping_ms ?? 0
+        return String(
+            format: "telemetry seq=%d v=%.3f w=%.3f lift=%.3f spin=%.3f ping=%.0f",
+            telemetry.seq,
+            telemetry.drive.v,
+            telemetry.drive.w,
+            telemetry.drum.lift,
+            telemetry.drum.spin,
+            ping
+        )
     }
 
     private func sendDriveFromController(v: Double, w: Double) {

@@ -9,14 +9,12 @@ struct MotionControlCard: View {
 
     var body: some View {
         CardView(title: "Motion Control") {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 sectionHeader("Drive train", pills: [
                     (state.driveEnabled ? "Drive ON" : "Drive OFF", state.driveEnabled ? DashboardTheme.success : DashboardTheme.warning),
                     (state.controllerEnabled ? "Controller ON" : "Controller OFF", state.controllerEnabled ? DashboardTheme.success : DashboardTheme.warning)
                 ])
-                HStack(spacing: 8) {
-                    drivePad
-                }
+                drivePad
                 if let activeDriveProfile {
                     DriveProfileSettingsView(state: state, profileName: activeDriveProfile)
                 }
@@ -25,17 +23,13 @@ struct MotionControlCard: View {
                     (state.drumEnabled ? "Lever ON" : "Lever OFF", state.drumEnabled ? DashboardTheme.success : DashboardTheme.warning),
                     (state.eStopActive ? "E-Stop" : "Safe", state.eStopActive ? DashboardTheme.danger : DashboardTheme.success)
                 ])
-                HStack(spacing: 8) {
-                    leverButtons
-                }
+                leverButtons
 
                 sectionHeader("Drum Control", pills: [
                     (state.drumEnabled ? "Drum ON" : "Drum OFF", state.drumEnabled ? DashboardTheme.success : DashboardTheme.warning),
                     (state.eStopActive ? "E-Stop" : "Safe", state.eStopActive ? DashboardTheme.danger : DashboardTheme.success)
                 ])
-                HStack(spacing: 8) {
-                    drumButtons
-                }
+                drumButtons
             }
         }
     }
@@ -53,28 +47,26 @@ struct MotionControlCard: View {
     }
 
     private var drivePad: some View {
-        VStack(spacing: 6) {
+        HStack(spacing: 6) {
             HoldButton(title: "Forward", tint: DashboardTheme.success) {
                 state.startDriveHold(v: 0.6, w: 0)
             } onRelease: {
                 state.stopDriveHold()
                 state.sendDrive(v: 0, w: 0)
             }
-            HStack(spacing: 6) {
-                HoldButton(title: "Left", tint: DashboardTheme.accent) {
-                    state.startDriveHold(v: 0, w: 0.5)
-                } onRelease: {
-                    state.stopDriveHold()
-                    state.sendDrive(v: 0, w: 0)
-                }
-                HoldButton(title: "Right", tint: DashboardTheme.accent) {
-                    state.startDriveHold(v: 0, w: -0.5)
-                } onRelease: {
-                    state.stopDriveHold()
-                    state.sendDrive(v: 0, w: 0)
-                }
+            HoldButton(title: "Left", tint: DashboardTheme.accent) {
+                state.startDriveHold(v: 0, w: 0.5)
+            } onRelease: {
+                state.stopDriveHold()
+                state.sendDrive(v: 0, w: 0)
             }
-            HoldButton(title: "Reverse", tint: DashboardTheme.warning) {
+            HoldButton(title: "Right", tint: DashboardTheme.accent) {
+                state.startDriveHold(v: 0, w: -0.5)
+            } onRelease: {
+                state.stopDriveHold()
+                state.sendDrive(v: 0, w: 0)
+            }
+            HoldButton(title: "Reverse", tint: DashboardTheme.danger) {
                 state.startDriveHold(v: -0.6, w: 0)
             } onRelease: {
                 state.stopDriveHold()
@@ -85,7 +77,7 @@ struct MotionControlCard: View {
     }
 
     private var leverButtons: some View {
-        VStack(spacing: 6) {
+        HStack(spacing: 6) {
             HoldButton(title: "Upper", tint: DashboardTheme.success) {
                 state.startDrumHold(lift: 0.6, spin: 0)
             } onRelease: {
@@ -103,7 +95,7 @@ struct MotionControlCard: View {
     }
 
     private var drumButtons: some View {
-        VStack(spacing: 6) {
+        HStack(spacing: 6) {
             HoldButton(title: "Dig (Forward)", tint: DashboardTheme.accent) {
                 state.startDrumHold(lift: 0, spin: 0.6)
             } onRelease: {
