@@ -156,6 +156,9 @@ struct ContentView: View {
         VStack(spacing: 0) {
             TopBarView(state: state)
                 .frame(height: 90)
+            Divider()
+                .background(DashboardTheme.cardBorder.opacity(0.4))
+                .padding(.horizontal, 12)
 
             MainGridView(state: state)
                 .padding(16)
