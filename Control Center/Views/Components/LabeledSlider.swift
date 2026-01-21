@@ -13,7 +13,7 @@ struct LabeledSlider: View {
                     .font(.dashboardBody(10))
                     .foregroundStyle(DashboardTheme.textSecondary)
                 Spacer()
-                Text(String(format: "%.2f", value))
+                Text(String(format: "%.3f", value))
                     .font(.dashboardMono(10))
                     .foregroundStyle(DashboardTheme.textPrimary)
             }

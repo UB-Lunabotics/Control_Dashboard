@@ -42,6 +42,7 @@ struct MotionControlCard: View {
             Spacer()
             ForEach(pills, id: \.0) { item in
                 StatusPill(text: item.0, color: item.1)
+                    .scaleEffect(0.85)
             }
         }
     }

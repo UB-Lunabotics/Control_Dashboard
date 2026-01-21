@@ -40,6 +40,15 @@ struct URDFSceneView: View {
                 cameraButton("Top") { model.setCamera(0, 1.6, 0) }
                 cameraButton("Iso") { model.setCamera(0.8, 0.9, 1.2) }
                 Spacer()
+                Picker("Axis Preset", selection: $model.selectedPresetName) {
+                    Text("Custom").tag("Custom")
+                    ForEach(URDFViewModel.axisPresets) { preset in
+                        Text(preset.name).tag(preset.name)
+                    }
+                }
+                .labelsHidden()
+                .controlSize(.mini)
+                .frame(width: 200)
                 Button(showAxisTuning ? "Hide Axis Tuning" : "Axis Tuning") {
                     showAxisTuning.toggle()
                 }
@@ -47,15 +56,19 @@ struct URDFSceneView: View {
                 .controlSize(.mini)
             }
             .frame(maxWidth: .infinity)
+            .onChange(of: model.selectedPresetName) { _, newValue in
+                model.applyPresetByName(newValue)
+            }
 
             if showAxisTuning {
-                URDFAxisControlsView(rotX: $model.rotX, rotY: $model.rotY, rotZ: $model.rotZ, flipX: $model.flipX, flipY: $model.flipY, flipZ: $model.flipZ)
-                    .onChange(of: model.rotX) { _, _ in model.reloadScene(preserveCamera: true) }
-                    .onChange(of: model.rotY) { _, _ in model.reloadScene(preserveCamera: true) }
-                    .onChange(of: model.rotZ) { _, _ in model.reloadScene(preserveCamera: true) }
-                    .onChange(of: model.flipX) { _, _ in model.reloadScene(preserveCamera: true) }
-                    .onChange(of: model.flipY) { _, _ in model.reloadScene(preserveCamera: true) }
-                    .onChange(of: model.flipZ) { _, _ in model.reloadScene(preserveCamera: true) }
+                URDFAxisControlsView(rotX: $model.rotX, rotY: $model.rotY, rotZ: $model.rotZ, flipX: $model.flipX, flipY: $model.flipY, flipZ: $model.flipZ, scale: $model.unitScale)
+                    .onChange(of: model.rotX) { _, _ in model.axisDidChange(); model.reloadScene(preserveCamera: true) }
+                    .onChange(of: model.rotY) { _, _ in model.axisDidChange(); model.reloadScene(preserveCamera: true) }
+                    .onChange(of: model.rotZ) { _, _ in model.axisDidChange(); model.reloadScene(preserveCamera: true) }
+                    .onChange(of: model.flipX) { _, _ in model.axisDidChange(); model.reloadScene(preserveCamera: true) }
+                    .onChange(of: model.flipY) { _, _ in model.axisDidChange(); model.reloadScene(preserveCamera: true) }
+                    .onChange(of: model.flipZ) { _, _ in model.axisDidChange(); model.reloadScene(preserveCamera: true) }
+                    .onChange(of: model.unitScale) { _, _ in model.reloadScene(preserveCamera: true) }
 
                 URDFMeshAxisControlsView(
                     selectedMesh: $model.selectedMesh,
@@ -133,7 +146,8 @@ private struct URDFSCNView: NSViewRepresentable {
 
         init() {
             cameraNode.camera = SCNCamera()
-            cameraNode.camera?.zFar = 1000
+            cameraNode.camera?.zNear = 0.001
+            cameraNode.camera?.zFar = 100000
         }
 
         func ensureCamera(in view: SCNView) {

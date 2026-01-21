@@ -14,6 +14,13 @@ struct SettingsStore {
         static let cameraConfigs = "camera.configs"
         static let saveLocationBookmark = "logger.save_location_bookmark"
         static let sshFolderBookmark = "terminal.ssh_folder_bookmark"
+        static let urdfAxisPreset = "urdf.axis_preset"
+        static let urdfAxisRotX = "urdf.axis_rotx"
+        static let urdfAxisRotY = "urdf.axis_roty"
+        static let urdfAxisRotZ = "urdf.axis_rotz"
+        static let urdfAxisFlipX = "urdf.axis_flipx"
+        static let urdfAxisFlipY = "urdf.axis_flipy"
+        static let urdfAxisFlipZ = "urdf.axis_flipz"
     }
 
     func loadHost() -> String {
@@ -112,5 +119,32 @@ struct SettingsStore {
 
     func saveSSHFolderBookmark(_ value: Data?) {
         defaults.set(value, forKey: Keys.sshFolderBookmark)
+    }
+
+    func loadURDFAxisPreset() -> String? {
+        defaults.string(forKey: Keys.urdfAxisPreset)
+    }
+
+    func saveURDFAxisPreset(_ value: String) {
+        defaults.set(value, forKey: Keys.urdfAxisPreset)
+    }
+
+    func loadURDFAxisOverrides() -> (rotX: Double, rotY: Double, rotZ: Double, flipX: Bool, flipY: Bool, flipZ: Bool) {
+        let rotX = defaults.double(forKey: Keys.urdfAxisRotX)
+        let rotY = defaults.double(forKey: Keys.urdfAxisRotY)
+        let rotZ = defaults.double(forKey: Keys.urdfAxisRotZ)
+        let flipX = defaults.bool(forKey: Keys.urdfAxisFlipX)
+        let flipY = defaults.bool(forKey: Keys.urdfAxisFlipY)
+        let flipZ = defaults.bool(forKey: Keys.urdfAxisFlipZ)
+        return (rotX, rotY, rotZ, flipX, flipY, flipZ)
+    }
+
+    func saveURDFAxisOverrides(rotX: Double, rotY: Double, rotZ: Double, flipX: Bool, flipY: Bool, flipZ: Bool) {
+        defaults.set(rotX, forKey: Keys.urdfAxisRotX)
+        defaults.set(rotY, forKey: Keys.urdfAxisRotY)
+        defaults.set(rotZ, forKey: Keys.urdfAxisRotZ)
+        defaults.set(flipX, forKey: Keys.urdfAxisFlipX)
+        defaults.set(flipY, forKey: Keys.urdfAxisFlipY)
+        defaults.set(flipZ, forKey: Keys.urdfAxisFlipZ)
     }
 }

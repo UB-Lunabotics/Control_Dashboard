@@ -5,11 +5,11 @@ struct URDFSimulatorCard: View {
     @State private var showFullscreen = false
 
     init() {
-        _model = StateObject(wrappedValue: URDFViewModel(urdfURL: Self.defaultURDFURL()))
+        _model = StateObject(wrappedValue: URDFViewModel(modelURL: Self.defaultModelURL()))
     }
 
     var body: some View {
-        CardView(title: "Rover Sim (URDF)") {
+        CardView(title: "Rover Sim (CSV)") {
             Group {
                 if showFullscreen {
                     ZStack {
@@ -40,11 +40,11 @@ struct URDFSimulatorCard: View {
         }
     }
 
-    private static func defaultURDFURL() -> URL {
-        if let bundled = Bundle.main.url(forResource: "Assem1", withExtension: "urdf", subdirectory: "urdf") {
+    private static func defaultModelURL() -> URL {
+        if let bundled = Bundle.main.url(forResource: "Assem1", withExtension: "csv", subdirectory: "urdf") {
             return bundled
         }
-        return URL(fileURLWithPath: "/Users/sujalbhakare/Projects/Lunabotics/Control Center/urdf/Assem1.urdf")
+        return URL(fileURLWithPath: "/Users/sujalbhakare/Projects/Lunabotics/Control Center/urdf/Assem1.csv")
     }
 }
 

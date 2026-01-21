@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct TopBarView: View {
     @ObservedObject var state: AppState
@@ -7,16 +8,16 @@ struct TopBarView: View {
         HStack(spacing: 16) {
             HStack(spacing: 12) {
                 Group {
-                    if let logoImage = NSImage(named: "UBLogo") {
-                        Image(nsImage: logoImage)
+//                    if NSImage(named: "UBLogo") != nil {
+                        Image("UBLogo")
                             .resizable()
                             .scaledToFit()
-                    } else {
-                        Image(systemName: "shield.lefthalf.filled")
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundStyle(DashboardTheme.accent)
-                    }
+//                    } else {
+//                        Image(systemName: "shield.lefthalf.filled")
+//                            .resizable()
+//                            .scaledToFit()
+//                            .foregroundStyle(DashboardTheme.accent)
+//                    }
                 }
                 .frame(width: 44, height: 44)
 

@@ -24,7 +24,7 @@ struct WebSocketActivityCard: View {
                         }
                         .frame(height: 0)
 
-                        ForEach(state.webSocketActivity.suffix(50).reversed()) { entry in
+                        ForEach(state.webSocketActivity.suffix(50)) { entry in
                             HStack(spacing: 6) {
                                 Text(timeString(entry.timestamp))
                                     .font(.dashboardMono(9))
@@ -49,7 +49,7 @@ struct WebSocketActivityCard: View {
                     .padding(5)
                 }
                 .background(Color.black)
-                .onChange(of: state.webSocketActivity.count) { _ in
+                .onChange(of: state.webSocketActivity.count) { _, _ in
                     guard stickToBottom else { return }
                     DispatchQueue.main.async {
                         proxy.scrollTo("BOTTOM", anchor: .bottom)

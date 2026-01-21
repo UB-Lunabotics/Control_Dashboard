@@ -2,6 +2,27 @@ import Foundation
 import SceneKit
 
 final class URDFViewModel: ObservableObject {
+    struct AxisPreset: Identifiable {
+        let id = UUID()
+        let name: String
+        let rotX: Double
+        let rotY: Double
+        let rotZ: Double
+        let flipX: Bool
+        let flipY: Bool
+        let flipZ: Bool
+    }
+
+    private let settings = SettingsStore.shared
+
+    static let axisPresets: [AxisPreset] = [
+        AxisPreset(name: "SceneKit Default", rotX: 0, rotY: 0, rotZ: 0, flipX: false, flipY: false, flipZ: false),
+        AxisPreset(name: "ROS (Z-up) -> SceneKit", rotX: -90, rotY: 0, rotZ: 0, flipX: false, flipY: false, flipZ: false),
+        AxisPreset(name: "ROS (Z-up) + Flip Z", rotX: -90, rotY: 0, rotZ: 0, flipX: false, flipY: false, flipZ: true),
+        AxisPreset(name: "ROS (Z-up) + Flip Y", rotX: -90, rotY: 0, rotZ: 0, flipX: false, flipY: true, flipZ: false),
+        AxisPreset(name: "ROS (Z-up) + Rotate 180Z", rotX: -90, rotY: 0, rotZ: 180, flipX: false, flipY: false, flipZ: false)
+    ]
+
     @Published var scene: SCNScene? = nil
     @Published var loadError: String? = nil
     @Published var cameraPosition = SCNVector3(0.8, 0.9, 1.2)
@@ -13,6 +34,8 @@ final class URDFViewModel: ObservableObject {
     @Published var flipX: Bool = false
     @Published var flipY: Bool = false
     @Published var flipZ: Bool = false
+    @Published var selectedPresetName: String = "Custom"
+    @Published var unitScale: Double = 1.0
 
     @Published var selectedMesh: String = ""
     @Published var meshFlipX: Bool = false
@@ -22,30 +45,45 @@ final class URDFViewModel: ObservableObject {
 
     var meshOverrides: [String: URDFMeshAxisOverride] = [:]
 
-    private let urdfURL: URL
+    private let modelURL: URL
     private var hasInitializedCamera = false
 
-    init(urdfURL: URL) {
-        self.urdfURL = urdfURL
+    init(modelURL: URL) {
+        self.modelURL = modelURL
+        let savedPreset = settings.loadURDFAxisPreset()
+        if let savedPreset,
+           let preset = Self.axisPresets.first(where: { $0.name == savedPreset }) {
+            applyPreset(preset)
+            selectedPresetName = preset.name
+        } else {
+            let overrides = settings.loadURDFAxisOverrides()
+            rotX = overrides.rotX
+            rotY = overrides.rotY
+            rotZ = overrides.rotZ
+            flipX = overrides.flipX
+            flipY = overrides.flipY
+            flipZ = overrides.flipZ
+            selectedPresetName = savedPreset ?? "Custom"
+        }
         loadScene(preserveCamera: false)
     }
 
     func loadScene(preserveCamera: Bool) {
-        let resolved = urdfURL.standardizedFileURL
+        let resolved = modelURL.standardizedFileURL
         guard FileManager.default.fileExists(atPath: resolved.path) else {
-            loadError = "URDF not found: \(resolved.lastPathComponent)"
+            loadError = "Model CSV not found: \(resolved.lastPathComponent)"
             scene = nil
             return
         }
-        URDFLoader.unitScale = 1.0
-        URDFLoader.axisRotation = SCNVector3(degToRad(rotX), degToRad(rotY), degToRad(rotZ))
-        URDFLoader.flipX = flipX
-        URDFLoader.flipY = flipY
-        URDFLoader.flipZ = flipZ
-        URDFLoader.meshOverrides = meshOverrides
-        URDFLoader.highlightedMeshName = selectedMesh.isEmpty ? nil : selectedMesh
+        CSVRobotLoader.unitScale = Float(unitScale)
+        CSVRobotLoader.axisRotation = SCNVector3(degToRad(rotX), degToRad(rotY), degToRad(rotZ))
+        CSVRobotLoader.flipX = flipX
+        CSVRobotLoader.flipY = flipY
+        CSVRobotLoader.flipZ = flipZ
+        CSVRobotLoader.meshOverrides = meshOverrides
+        CSVRobotLoader.highlightedMeshName = selectedMesh.isEmpty ? nil : selectedMesh
 
-        let loaded = URDFLoader.loadScene(from: resolved)
+        let loaded = CSVRobotLoader.loadScene(from: resolved)
         loaded.background.contents = NSColor.black
         addLights(to: loaded)
         normalizeScene(loaded)
@@ -69,8 +107,8 @@ final class URDFViewModel: ObservableObject {
         }
 
         scene = loaded
-        if URDFLoader.lastVisualCount == 0 {
-            loadError = "No meshes loaded. Check STL paths in URDF."
+        if CSVRobotLoader.lastVisualCount == 0 {
+            loadError = "No meshes loaded. Check STL paths in CSV."
         } else {
             loadError = nil
         }
@@ -80,12 +118,35 @@ final class URDFViewModel: ObservableObject {
         loadScene(preserveCamera: preserveCamera)
     }
 
+    func applyPresetByName(_ name: String) {
+        if name == "Custom" {
+            selectedPresetName = "Custom"
+            saveAxisOverrides()
+            reloadScene(preserveCamera: true)
+            return
+        }
+        guard let preset = Self.axisPresets.first(where: { $0.name == name }) else { return }
+        applyPreset(preset)
+        selectedPresetName = preset.name
+        settings.saveURDFAxisPreset(preset.name)
+        saveAxisOverrides()
+        reloadScene(preserveCamera: true)
+    }
+
+    func axisDidChange() {
+        if selectedPresetName != "Custom" {
+            selectedPresetName = "Custom"
+            settings.saveURDFAxisPreset("Custom")
+        }
+        saveAxisOverrides()
+    }
+
     func setCamera(_ x: Float, _ y: Float, _ z: Float) {
         cameraPosition = SCNVector3(x, y, z)
     }
 
     func meshNames() -> [String] {
-        let names = URDFLoader.lastResolvedMeshes.map { URL(fileURLWithPath: $0).lastPathComponent }
+        let names = CSVRobotLoader.lastResolvedMeshes.map { URL(fileURLWithPath: $0).lastPathComponent }
         return Array(Set(names)).sorted()
     }
 
@@ -111,14 +172,14 @@ final class URDFViewModel: ObservableObject {
     }
 
     func debugInfo() -> String {
-        let missing = URDFLoader.lastMissingMeshes
-        let resolved = URDFLoader.lastResolvedMeshes
+        let missing = CSVRobotLoader.lastMissingMeshes
+        let resolved = CSVRobotLoader.lastResolvedMeshes
         let missingCount = missing.count
         let resolvedCount = resolved.count
         let sample = missing.prefix(2).map { URL(fileURLWithPath: $0).lastPathComponent }.joined(separator: ", ")
         let resolvedSample = resolved.prefix(1).map { URL(fileURLWithPath: $0).lastPathComponent }.joined(separator: ", ")
-        let parseError = URDFLoader.lastParseError ?? "--"
-        return "Visuals: \(URDFLoader.lastVisualCount) Joints: \(URDFLoader.lastJointCount)\nResolved: \(resolvedCount) Missing: \(missingCount)\nMissing sample: \(sample)\nResolved sample: \(resolvedSample)\nParse: \(parseError)\nURDF: \(urdfURL.lastPathComponent)"
+        let parseError = CSVRobotLoader.lastParseError ?? "--"
+        return "Visuals: \(CSVRobotLoader.lastVisualCount) Joints: \(CSVRobotLoader.lastJointCount)\nResolved: \(resolvedCount) Missing: \(missingCount)\nMissing sample: \(sample)\nResolved sample: \(resolvedSample)\nParse: \(parseError)\nCSV: \(modelURL.lastPathComponent)"
     }
 
     private func addLights(to scene: SCNScene) {
@@ -139,7 +200,7 @@ final class URDFViewModel: ObservableObject {
 
     private func fitCameraToScene(_ scene: SCNScene) -> (SCNVector3, Float) {
         let targetNode = scene.rootNode.childNode(withName: "URDFModelRoot", recursively: false) ?? scene.rootNode
-        let bounds = targetNode.boundingBox
+        let bounds = computeBounds(in: targetNode) ?? targetNode.boundingBox
         let minVec = bounds.min
         let maxVec = bounds.max
         let minX = Float(minVec.x)
@@ -159,7 +220,7 @@ final class URDFViewModel: ObservableObject {
 
     private func normalizeScene(_ scene: SCNScene) {
         let targetNode = scene.rootNode.childNode(withName: "URDFModelRoot", recursively: false) ?? scene.rootNode
-        let bounds = targetNode.boundingBox
+        let bounds = computeBounds(in: targetNode) ?? targetNode.boundingBox
         let minVec = bounds.min
         let maxVec = bounds.max
         let minX = Float(minVec.x)
@@ -188,7 +249,56 @@ final class URDFViewModel: ObservableObject {
 
     }
 
+    private func computeBounds(in root: SCNNode) -> (min: SCNVector3, max: SCNVector3)? {
+        var minV = SCNVector3(Float.greatestFiniteMagnitude, Float.greatestFiniteMagnitude, Float.greatestFiniteMagnitude)
+        var maxV = SCNVector3(-Float.greatestFiniteMagnitude, -Float.greatestFiniteMagnitude, -Float.greatestFiniteMagnitude)
+        var found = false
+
+        root.enumerateChildNodes { node, _ in
+            guard node.geometry != nil else { return }
+            let bounds = node.boundingBox
+            let corners = [
+                SCNVector3(bounds.min.x, bounds.min.y, bounds.min.z),
+                SCNVector3(bounds.min.x, bounds.min.y, bounds.max.z),
+                SCNVector3(bounds.min.x, bounds.max.y, bounds.min.z),
+                SCNVector3(bounds.min.x, bounds.max.y, bounds.max.z),
+                SCNVector3(bounds.max.x, bounds.min.y, bounds.min.z),
+                SCNVector3(bounds.max.x, bounds.min.y, bounds.max.z),
+                SCNVector3(bounds.max.x, bounds.max.y, bounds.min.z),
+                SCNVector3(bounds.max.x, bounds.max.y, bounds.max.z)
+            ]
+            for corner in corners {
+                let local = node.convertPosition(corner, to: root)
+                minV = SCNVector3(min(minV.x, local.x), min(minV.y, local.y), min(minV.z, local.z))
+                maxV = SCNVector3(max(maxV.x, local.x), max(maxV.y, local.y), max(maxV.z, local.z))
+            }
+            found = true
+        }
+
+        return found ? (minV, maxV) : nil
+    }
+
     private func degToRad(_ value: Double) -> Float {
         Float(value * Double.pi / 180)
+    }
+
+    private func applyPreset(_ preset: AxisPreset) {
+        rotX = preset.rotX
+        rotY = preset.rotY
+        rotZ = preset.rotZ
+        flipX = preset.flipX
+        flipY = preset.flipY
+        flipZ = preset.flipZ
+    }
+
+    private func saveAxisOverrides() {
+        settings.saveURDFAxisOverrides(
+            rotX: rotX,
+            rotY: rotY,
+            rotZ: rotZ,
+            flipX: flipX,
+            flipY: flipY,
+            flipZ: flipZ
+        )
     }
 }

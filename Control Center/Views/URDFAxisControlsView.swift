@@ -7,6 +7,7 @@ struct URDFAxisControlsView: View {
     @Binding var flipX: Bool
     @Binding var flipY: Bool
     @Binding var flipZ: Bool
+    @Binding var scale: Double
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -30,6 +31,8 @@ struct URDFAxisControlsView: View {
                 axisButton("Reset", action: reset)
             }
             .font(.dashboardBody(10))
+
+            LabeledSlider(title: "Scale", value: $scale, range: 0.001...100, step: 0.001)
         }
     }
 
@@ -46,5 +49,6 @@ struct URDFAxisControlsView: View {
         flipX = false
         flipY = false
         flipZ = false
+        scale = 1.0
     }
 }

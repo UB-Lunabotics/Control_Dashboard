@@ -57,12 +57,22 @@ struct CameraViewCard: View {
 
             if showSettings.wrappedValue {
                 VStack(alignment: .leading, spacing: 6) {
-                    TextField("Stream URL", text: Binding(
-                        get: { config?.wrappedValue.url ?? "" },
-                        set: { config?.wrappedValue.url = $0 }
-                    ))
-                    .textFieldStyle(.roundedBorder)
-                    .controlSize(.small)
+                    HStack(spacing: 8) {
+                        TextField("Stream URL", text: Binding(
+                            get: { config?.wrappedValue.url ?? "" },
+                            set: { config?.wrappedValue.url = $0 }
+                        ))
+                        .textFieldStyle(.roundedBorder)
+                        .controlSize(.small)
+
+                        Button((config?.wrappedValue.isEnabled ?? false) ? "Stop" : "Stream") {
+                            if config != nil {
+                                config?.wrappedValue.isEnabled.toggle()
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                    }
 
                     HStack(spacing: 8) {
                         Text("Only MJPEG supported for now")
